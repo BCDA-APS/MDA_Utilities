@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2014 UChicago Argonne, LLC,
+* Copyright (c) 2016 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -7,7 +7,6 @@
 
 
 /*
- 
   Written by Dohn A. Arms, Argonne National Laboratory
   Send comments to dohnarms@anl.gov
   
@@ -49,6 +48,8 @@
   1.3.1 -- February 2014
            Keep program from stopping while decoding after finding an 
            invalid file, a problem when processing multiple files.
+  1.4.0 -- July 2016
+           New version of load library is used, with better error checking.
 */
 
 /********************  mda_ascii.c  ***************/
@@ -59,13 +60,11 @@
 #include <string.h>
 #include <ctype.h>
 
-//#include <mcheck.h>
-
 #include "mda-load.h"
 
-#define VERSION       "1.3.1 (February 2014)"
-#define YEAR          "2014"
-#define VERSIONNUMBER "1.3.1"
+#define VERSION       "1.4.0 (July 2016)"
+#define YEAR          "2016"
+#define VERSIONNUMBER "1.4.0"
 
 
 
@@ -909,8 +908,6 @@ int main( int argc, char *argv[])
 
   int i;
   
-  //  mtrace();
-
   if( argc == 1)
     {
       printf( "For help, type: mda2ascii -h\n");
@@ -1139,12 +1136,13 @@ int main( int argc, char *argv[])
 	  fprintf(stderr, "Can't open file \"%s\" for reading!\n", argv[i]);
 	  return 1;
 	}
-      if( (mda = mda_load( input)) == NULL )
+      mda = mda_load( input);
+      fclose(input);
+      if( mda == NULL )
 	{
 	  fprintf(stderr, "Loading file \"%s\" failed!\n", argv[i]);
 	  continue;
 	}
-      fclose(input);
       
       if( !dim_flag && (option[DIMENSION] > mda->header->data_rank))
         {
@@ -1163,8 +1161,6 @@ int main( int argc, char *argv[])
       /* Free up the memory allocated by the mda structure */
       mda_unload(mda);
     }
-
-  //  muntrace();
 
   return 0;
 }

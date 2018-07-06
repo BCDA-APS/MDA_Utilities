@@ -1,19 +1,33 @@
 MDA Utilities Version Changelog
 
 
+From 1.3.1 to 1.4.0
+
+mda-load library: 
+    Added mda_check(), to have an easy way to check the validity of a
+    file. Added mda_update() function that will load an updated MDA
+    file, attempting to use the previously loaded and supplied MDA
+    data. Completed error handling, made sure to release all memory on
+    error.  Check for MDA file structural errors (like negative number
+    of positioners).
+mda-ls: 
+    Enabled entire file checking by default, allow this to be turned off
+    with -s switch.
+mda-info: 
+    Enabled entire file checking by default, allow this to be turned off
+    with -s switch.
+
+
 From 1.3.0 to 1.3.1
 
 mda-load library: 
     Added another check for corrupted files.
-
 mda2ascii: 
     When processing multiple files, the program will now skip an
     invalid file instead of stopping execution.
-
 mda-ls: 
     The program will no longer halt when it encounters an invalid
     file.
-
 xdr_hack:
     To help Windows users, added code for faking enough of the XDR
     routines that are needed for decoding the MDA format (which
@@ -26,10 +40,8 @@ From 1.2.2 to 1.3.0
 
 mda-load library: 
     Added another check for corrupted files.
-
 mda2ascii:
     Refactored the code behind -f option to be more efficient.
-
 mdatree2ascii
     Added new script utility for converting entire directory trees of
     files into new corresponding trees containing the output.

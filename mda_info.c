@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2014 UChicago Argonne, LLC,
+* Copyright (c) 2016 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -7,7 +7,6 @@
 
 
 /*
-
   Written by Dohn A. Arms, Argonne National Laboratory
   Send comments to dohnarms@anl.gov
   
@@ -33,7 +32,11 @@
   1.2.2 -- June 2012
   1.3.0 -- February 2013
   1.3.1 -- February 2014
-
+  1.4.0 -- July 2016
+           New version of load library is used, with better error checking.
+           By default, try to load the data file completely using mda_test(),
+           in order to find any data error not found by info.
+           This can be turned off with new -s switch to speed it up.
  */
 
 
@@ -48,10 +51,9 @@
 
 #include "mda-load.h"
 
-//#include <mcheck.h>
 
-#define VERSION "1.3.1 (February 2014)"
-#define YEAR "2014"
+#define VERSION "1.4.0 (July 2016)"
+#define YEAR "2016"
 
 
 
@@ -157,11 +159,12 @@ int information( struct mda_fileinfo *fileinfo)
 
 void help(void)
 {
-  printf("Usage: mda-info [-hv] FILE\n"
+  printf("Usage: mda-info [-hvs] FILE\n"
          "Prints the basic scan information about the EPICS MDA file, FILE.\n"
          "\n"
          "-h  This help text.\n"
          "-v  Show version information.\n"
+         "-s  Only do simple data file checks, instead of a full load test.\n"
          "\n"
          "Information such as dimensionality and time of scan start are shown,\n"
          "as well as all the positioners, detectors, and triggers for each dimension.\n"
@@ -187,10 +190,9 @@ int main( int argc, char *argv[])
   struct mda_fileinfo *fileinfo;
 
   int opt;
+  int check_flag = 1;
 
-  //  mtrace();  // for looking for memory leaks
-
-  while((opt = getopt( argc, argv, "hv")) != -1)
+  while((opt = getopt( argc, argv, "hvs")) != -1)
     {
       switch(opt)
         {
@@ -201,6 +203,9 @@ int main( int argc, char *argv[])
         case 'v':
           version();
           return 0;
+          break;
+        case 's':
+          check_flag = 0;
           break;
         case ':':
           // option normally resides in 'optarg'
@@ -222,9 +227,19 @@ int main( int argc, char *argv[])
       return 1;
     }
 
+  if( check_flag)
+    {
+      if( mda_test( input) )
+        {
+          fprintf(stderr, "Loading file \"%s\" failed!\n", argv[optind]);
+          return 1;
+        }
+    }
+
   if( (fileinfo = mda_info_load( input)) == NULL )
     {
-      fprintf(stderr, "Loading file \"%s\" failed!\n", argv[optind]);
+      fprintf(stderr, "Reading information from file \"%s\" failed!\n", 
+              argv[optind]);
       return 1;
     }
 
@@ -233,8 +248,6 @@ int main( int argc, char *argv[])
   information(fileinfo);
 
   mda_info_unload(fileinfo);
-
-  //  muntrace();  // for looking for memory leaks
 
   return 0;
 }

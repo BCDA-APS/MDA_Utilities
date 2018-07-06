@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2014 UChicago Argonne, LLC,
+* Copyright (c) 2016 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -7,7 +7,6 @@
 
 
 /*
-
   Written by Dohn A. Arms, Argonne National Laboratory
   Send comments to dohnarms@anl.gov
   
@@ -29,7 +28,11 @@
            Used printf better, removed formatting strings
   1.3.1 -- February 2014
            If there is an unopenable file, it's ignored instead of halting.
-
+  1.4.0 -- July 2016
+           New version of load library is used, with better error checking.
+           By default, try to load the data file completely using mda_test(),
+           in order to find any data error not found by info.
+           This can be turned off with new -s switch to speed it up.
  */
 
 
@@ -45,8 +48,8 @@
 #include "mda-load.h"
 
 
-#define VERSION "1.3.1 (February 2014)"
-#define YEAR "2014"
+#define VERSION "1.4.0 (July 2016)"
+#define YEAR "2016"
 
 // this function relies too much on the input format not changing
 void time_reformat( char *original, char *new)
@@ -94,12 +97,13 @@ void time_reformat( char *original, char *new)
 
 void helper(void)
 {
-  printf( "Usage: mda-ls [-hvf] [-p POSITIONER] [-d DETECTOR] [-t TRIGGER] [DIRECTORY]\n"
+  printf( "Usage: mda-ls [-hvfs] [-p POSITIONER] [-d DETECTOR] [-t TRIGGER] [DIRECTORY]\n"
           "Shows scan information for all MDA files in a directory.\n"
           "\n"
           "-h  This help text.\n"
           "-v  Show version information.\n"
 	  "-f  Show a fuller listing, including the time of the scan start.\n"
+          "-s  Only do simple data file checks, instead of a full load test.\n"
           "-p  Include only listings with POSITIONER as a scan positioner.\n"
           "-d  Include only listings with DETECTOR as a scan detector.\n"
           "-t  Include only listings with TRIGGER as a scan trigger.\n"
@@ -226,6 +230,7 @@ int main( int argc, char *argv[])
   int max_namelen, max_dimlen, max_timelen, offset;
 
   int full_flag = 0;
+  int check_flag = 1;
   int search_flag = 0;
   int positioner_flag = 0;
   char *positioner_term = NULL;
@@ -245,7 +250,7 @@ int main( int argc, char *argv[])
   int i, j, k, m, n;
 
 
-  while((opt = getopt( argc, argv, "hvfp:d:t:")) != -1)
+  while((opt = getopt( argc, argv, "hvfsp:d:t:")) != -1)
     {
       switch(opt)
         {
@@ -259,6 +264,9 @@ int main( int argc, char *argv[])
           break;
         case 'f':
           full_flag = 1;
+          break;
+        case 's':
+          check_flag = 0;
           break;
 	case 'p':
 	  positioner_flag = 1;
@@ -329,7 +337,10 @@ int main( int argc, char *argv[])
         }
       else
         {
-          fileinfos[i] = mda_info_load( fptr);
+          if( check_flag && mda_test( fptr) )
+            fileinfos[i] = NULL;
+          else
+            fileinfos[i] = mda_info_load( fptr);
           fclose(fptr);
           allow_list[i] = 1;
           allow_count++;

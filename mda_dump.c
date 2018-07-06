@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2014 UChicago Argonne, LLC,
+* Copyright (c) 2016 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -7,7 +7,6 @@
 
 
 /*
-
   Written by Dohn A. Arms, Argonne National Laboratory
   Send comments to dohnarms@anl.gov
   
@@ -33,6 +32,7 @@
            Use printf correctly
   1.3.1 -- February 2014
            Apply XDR hack to file
+  1.4.0 -- July 2016
 
  */
 
@@ -47,9 +47,9 @@
 
 #include <unistd.h>
 
-#define VERSION       "1.3.1 (February 2014)"
-#define YEAR          "2014"
-#define VERSIONNUMBER "1.3.1"
+#define VERSION       "1.4.0 (July 2016)"
+#define YEAR          "2016"
+#define VERSIONNUMBER "1.4.0"
 
 
 #ifdef XDR_HACK
