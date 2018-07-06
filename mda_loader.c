@@ -39,6 +39,8 @@
            make explicit the type of integer used (which broke compatibility
            with the EPICS DBR type names).
   1.2.1 -- January 2012
+  1.2.2 -- June 2012
+           Fixed major bug with INT8 Extra PVs.
 
  */
 
@@ -385,10 +387,12 @@ static struct mda_pv *pv_read(XDR *xdrs)
 #ifndef DARWIN
       if( !xdr_vector( xdrs, pv->values, pv->count, 
 		       sizeof( int8_t), (xdrproc_t) xdr_int8_t))
+	return NULL;
 #else
         // MacOS Darwin is missing xdr_int8_t, have to fake it with xdr_char
       if( !xdr_vector( xdrs, pv->values, pv->count, 
 		       sizeof( int8_t), (xdrproc_t) xdr_char))
+	return NULL;
 #endif
       break;
     case EXTRA_PV_INT16:

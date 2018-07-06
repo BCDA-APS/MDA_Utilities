@@ -42,6 +42,8 @@
            Fixed bug in -f mode, where long "l" modifier was in wrong place
            for certain cases, confusing printf.
            Simplified code a bit to reduce pointer dereferencing
+  1.2.2 -- June 2012
+
 */
 
 /*
@@ -62,9 +64,9 @@
 
 #include "mda-load.h"
 
-#define VERSION       "1.2.1 (January 2012)"
+#define VERSION       "1.2.2 (June 2012)"
 #define YEAR          "2012"
-#define VERSIONNUMBER "1.2.1"
+#define VERSIONNUMBER "1.2.2"
 
 
 

@@ -1,5 +1,5 @@
-MDA Utilities v1.2.1
-January 2012
+MDA Utilities v1.2.2
+June 2012
 
 Written by Dohn A. Arms, Argonne National Laboratory
 Send comments to dohnarms@anl.gov

@@ -1,9 +1,18 @@
 MDA Utilities Version Changelog
 
 
+From 1.2.1 to 1.2.2
+
+mda-load library: 
+    Fixed a bug that would cause an MDA file to not load if there was
+    an Extra PV that was of the char type.  Also added preprocessor
+    commands to mda-load.h in order to make the library C++ compatible
+    (Michael Hu).
+
+
 From 1.2 to 1.2.1
 
-mda2ascii: 
+mda2ascii:
     There was a bug when using the -f flag, which can cause a
     positioner column to show a printf format instead of the data
     (it's fairly obvious when this does happen). This only occurred

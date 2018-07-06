@@ -28,6 +28,7 @@
            Darwin, add fix to use xdr_char instead of xdr_int8_t.
   1.2.1 -- January 2012
            Minor build tweak
+  1.2.2 -- June 2012
  */
 
 
@@ -44,9 +45,9 @@
 
 #include <unistd.h>
 
-#define VERSION       "1.2.1 (January 2012)"
+#define VERSION       "1.2.2 (June 2012)"
 #define YEAR          "2012"
-#define VERSIONNUMBER "1.2.1"
+#define VERSIONNUMBER "1.2.2"
 
 
 

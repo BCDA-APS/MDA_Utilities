@@ -24,6 +24,8 @@
   1.2.1 -- January 2012
            Cleaned up the overuse of pointer dereferencing, hopefully
            making it faster as well as easier to understand
+  1.2.2 -- June 2012
+
  */
 
 
@@ -39,7 +41,7 @@
 #include "mda-load.h"
 
 
-#define VERSION "1.2.1 (January 2012)"
+#define VERSION "1.2.2 (June 2012)"
 #define YEAR "2012"
 
 // this function relies too much on the input format not changing
