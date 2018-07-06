@@ -48,7 +48,7 @@
 #include "mda-load.h"
 
 
-#define VERSION "1.4.0 (July 2016)"
+#define VERSION "1.4.1 (August 2016)"
 #define YEAR "2016"
 
 // this function relies too much on the input format not changing

@@ -37,6 +37,8 @@
            By default, try to load the data file completely using mda_test(),
            in order to find any data error not found by info.
            This can be turned off with new -s switch to speed it up.
+  1.4.1 -- August 2016
+           Changed regularity reporting to simply state as true or false.
  */
 
 
@@ -52,7 +54,7 @@
 #include "mda-load.h"
 
 
-#define VERSION "1.4.0 (July 2016)"
+#define VERSION "1.4.1 (August 2016)"
 #define YEAR "2016"
 
 
@@ -92,22 +94,10 @@ int information( struct mda_fileinfo *fileinfo)
     }
   printf("\n");
   printf(" Scan start time = %s\n", fileinfo->time);
-
-  if( !fileinfo->regular)
-    {
-      printf("\n      Regularity = FALSE\n"); 
-      printf("Actual scan size = ");
-      if( fileinfo->last_topdim_point != 
-          fileinfo->scaninfos[0]->requested_points )
-        printf( "(%i)", fileinfo->last_topdim_point);
-      for( i = 0; i < fileinfo->data_rank; i++)
-        {
-          if( i)
-            printf("x");
-          printf( "%i", fileinfo->scaninfos[i]->requested_points);
-        }
-      printf("\n");
-    }
+  if( fileinfo->regular)
+    printf("      Regularity = TRUE\n"); 
+  else
+    printf("      Regularity = FALSE\n"); 
 
   for( i = 0; i < fileinfo->data_rank; i++)
     {

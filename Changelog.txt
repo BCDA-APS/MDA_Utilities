@@ -1,6 +1,19 @@
 MDA Utilities Version Changelog
 
 
+From 1.4.0 to 1.4.1
+
+mda2ascii:
+    Changed way scan tree is traversed for multidimensional files.
+    Instead of trusting the header dimensions array for scan sizes,
+    use the sizes in the scans themselves.  Allows correct conversion
+    for irregular files, or files that have bad values in the
+    dimensions array (technically the file is damaged then).
+mda-info:
+    Simply state that a scan is irregular, as previous output was
+    misleading.
+
+
 From 1.3.1 to 1.4.0
 
 mda-load library: 

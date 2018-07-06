@@ -47,9 +47,9 @@
 
 #include <unistd.h>
 
-#define VERSION       "1.4.0 (July 2016)"
+#define VERSION       "1.4.1 (August 2016)"
 #define YEAR          "2016"
-#define VERSIONNUMBER "1.4.0"
+#define VERSIONNUMBER "1.4.1"
 
 
 #ifdef XDR_HACK

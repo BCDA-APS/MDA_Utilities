@@ -50,6 +50,11 @@
            invalid file, a problem when processing multiple files.
   1.4.0 -- July 2016
            New version of load library is used, with better error checking.
+  1.4.1 -- August 2016
+           Changed way that printer would go through mda structure,
+           printing scans.  Previously used header dimensions, which can
+           be wrong due to irregularity or just from scans not agreeing.
+           Now only use scans themselves for subscan lengths.
 */
 
 /********************  mda_ascii.c  ***************/
@@ -62,9 +67,9 @@
 
 #include "mda-load.h"
 
-#define VERSION       "1.4.0 (July 2016)"
+#define VERSION       "1.4.1 (August 2016)"
 #define YEAR          "2016"
-#define VERSIONNUMBER "1.4.0"
+#define VERSIONNUMBER "1.4.1"
 
 
 
@@ -424,13 +429,6 @@ int printer( struct mda_file *mda, int option[], char *argument[])
     }
   for( depth = depth_init; depth < depth_limit; depth++)
     {
-      scan_pos = (int *) malloc( depth * sizeof(int));
-      for( i = 0; i < depth; i++)
-        scan_pos[i] = 0;
-
-      scan_array = (struct mda_scan **) 
-        malloc( (depth+1) * sizeof(struct mda_scan *) );
-
       if( !option[SINGLE] )
         {
           log_dim = (int *) malloc( depth * sizeof(int));
@@ -446,8 +444,19 @@ int printer( struct mda_file *mda, int option[], char *argument[])
           filename = (char *) malloc( i * sizeof(char));
         }
 
-      unfinished = 0;
+      scan_pos = (int *) malloc( depth * sizeof(int));
+      for( i = 0; i < depth; i++)
+        scan_pos[i] = 0;
 
+      scan_array = (struct mda_scan **) 
+        malloc( (depth+1) * sizeof(struct mda_scan *) );
+
+      scan_array[0] = mda->scan;
+      for( i = 0; i < depth; i++)
+        scan_array[i+1] = scan_array[i]->sub_scans[0];
+      scan = scan_array[depth]; 
+
+      unfinished = 0;
       dim_first = 1;
       for(;;) // infinite loop
         {
@@ -456,15 +465,6 @@ int printer( struct mda_file *mda, int option[], char *argument[])
              Once we find a NULL scan, we skip to the end of the loop,
              where it does the check to see if there might be more scans.
           */
-
-          scan_array[0] = mda->scan;
-          for( i = 0; i < depth; i++)
-            {
-              scan_array[i+1] = scan_array[i]->sub_scans[scan_pos[i]];
-              if( scan_array[i+1] == NULL)
-                goto Iterate; 
-            }
-          scan = scan_array[depth];  // scan is now the 1-D scan
 
           if( option[DIMENSION] == -1)
             if( !scan->number_detectors )  // nothing to display!
@@ -799,15 +799,25 @@ int printer( struct mda_file *mda, int option[], char *argument[])
           for( j = depth - 1; j >= 0; j--)
             {
               scan_pos[j]++;
-              if(scan_pos[j] < mda->header->dimensions[j])
-                break;
+              if(scan_pos[j] < scan_array[j]->requested_points)
+                {
+                  for( i = j; i < depth; i++)
+                    {
+                      scan_array[i+1] = scan_array[i]->sub_scans[scan_pos[i]];
+                      if( scan_array[i+1] == NULL)
+                        goto Leave; 
+                    }
+                  scan = scan_array[depth]; 
+                  break;
+                }
+
               scan_pos[j] = 0;
             }
           if( j < 0)
             break; // done
 
           // show unfinished scans is option asks for it only
-          if( scan_pos[0] == mda->scan->last_point)
+          if( scan_pos[0] == scan_array[0]->last_point)
             {
               if( !option[ALL] )
                 break; // get out
@@ -815,9 +825,11 @@ int printer( struct mda_file *mda, int option[], char *argument[])
                 unfinished = 1;
             }
           // there can't be any scans at this point
-          if( scan_pos[0] > mda->scan->last_point)
+          if( scan_pos[0] > scan_array[0]->last_point)
             break;
         }
+
+    Leave:
 
       free( log_dim);
       free( filename);
