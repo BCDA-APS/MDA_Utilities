@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2012 UChicago Argonne, LLC,
+* Copyright (c) 2013 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -25,6 +25,8 @@
            Cleaned up the overuse of pointer dereferencing, hopefully
            making it faster as well as easier to understand
   1.2.2 -- June 2012
+  1.3.0 -- February 2013
+           Used printf better, removed formatting strings
 
  */
 
@@ -41,8 +43,8 @@
 #include "mda-load.h"
 
 
-#define VERSION "1.2.2 (June 2012)"
-#define YEAR "2012"
+#define VERSION "1.3.0 (February 2013)"
+#define YEAR "2013"
 
 // this function relies too much on the input format not changing
 void time_reformat( char *original, char *new)
@@ -216,11 +218,8 @@ int main( int argc, char *argv[])
 
 
 #define STRING_SIZE (4096)
-#define FORMAT_SIZE (256)
 
   char string[STRING_SIZE];
-  char name_format[FORMAT_SIZE];
-  char dim_format[FORMAT_SIZE];
 
   int max_namelen, max_dimlen, max_timelen, offset;
 
@@ -412,9 +411,6 @@ int main( int argc, char *argv[])
 
   max_timelen = 19;
 
-  snprintf( name_format, FORMAT_SIZE, "%%%ds  ", max_namelen);  // "%12s - "
-  snprintf( dim_format, FORMAT_SIZE, "%%-%ds -", max_dimlen);  // "%-12s "
-
   offset = max_namelen + max_dimlen + 4;
   if( full_flag)
     offset += (2 + max_timelen);
@@ -425,7 +421,7 @@ int main( int argc, char *argv[])
 	if( !allow_list[i] )
 	  continue;
 
-      printf(name_format, filelist[i]);
+      printf("%*s  ", max_namelen, filelist[i]);
 
       finf = fileinfos[i];
 
@@ -449,7 +445,7 @@ int main( int argc, char *argv[])
       for( k = 1; k < finf->data_rank; k++)
         j += snprintf( &string[j], STRING_SIZE - j, "x%i", 
                        finf->dimensions[k]);
-      printf(dim_format, string);
+      printf("%-*s -", max_dimlen, string);
 
       m = 0;
       for( k = 0; k < finf->data_rank; k++)
@@ -483,8 +479,6 @@ int main( int argc, char *argv[])
 
   if( search_flag)
     free(allow_list );
-
-
 
   return 0;
 }

@@ -1,6 +1,19 @@
 MDA Utilities Version Changelog
 
 
+From 1.2.2 to 1.3.0
+
+mda-load library: 
+    Added another check for corrupted files.
+
+mda2ascii:
+    Refactored the code behind -f option to be more efficient.
+
+mdatree2ascii
+    Added new script utility for converting entire directory trees of
+    files into new corresponding trees containing the output.
+
+
 From 1.2.1 to 1.2.2
 
 mda-load library: 

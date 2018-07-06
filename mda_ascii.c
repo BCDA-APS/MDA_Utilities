@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2012 UChicago Argonne, LLC,
+* Copyright (c) 2013 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -43,6 +43,9 @@
            for certain cases, confusing printf.
            Simplified code a bit to reduce pointer dereferencing
   1.2.2 -- June 2012
+  1.3.0 -- February 2013
+           Used printf better, removed formatting strings
+           Refactored the -f code to make less weird
 
 */
 
@@ -64,9 +67,9 @@
 
 #include "mda-load.h"
 
-#define VERSION       "1.2.2 (June 2012)"
-#define YEAR          "2012"
-#define VERSIONNUMBER "1.2.2"
+#define VERSION       "1.3.0 (February 2013)"
+#define YEAR          "2013"
+#define VERSIONNUMBER "1.3.0"
 
 
 
@@ -137,7 +140,7 @@ void print_extra( struct mda_extra *extra, FILE *output, char *comment)
 		{
 		  if( j)
 		    fprintf( output,",");
-		  fprintf( output,"%.9lg", ((double *) pv->values)[j]);
+		  fprintf( output,"%.9g", ((double *) pv->values)[j]);
 		}
 	      break;
 	    }
@@ -279,27 +282,75 @@ void max_check( int *fore_max, int *aft_max, int *exp_max, char *string)
 }
 
 // This is for the -f option
-int formatter( int fore, int aft, int exp, char *string, int len, int lflag)
+void formatter( int min, void *data, int data_type, int data_length, 
+                short *fmt_type, short *fmt_first, short *fmt_last)
 {
-  int num;
+  char string[64];
+  float *fdata;
+  double *ddata;
+  int fore, aft, exp;
 
-  if( !aft && !exp)
+  int i, num;
+
+  fore = aft = exp = 0;
+  if( !data_type)
     {
-      num = fore;
-      snprintf( string, len, "%%s%%%d.9%sg", num, lflag ? "l" : ""  );
-    }
-  else if( !exp)
-    {
-      num = fore + aft + 1;
-      snprintf( string, len, "%%s%%%d.%d%sf", num, aft, lflag ? "l" : ""  );
+      fdata = (float *) data;
+      for( i = 0; i < data_length; i++)
+        {
+          snprintf( string, 64, "%.9g", fdata[i]);
+          max_check( &fore, &aft, &exp, string);
+        }
     }
   else
     {
+      ddata = (double *) data;
+      for( i = 0; i < data_length; i++)
+        {
+          snprintf( string, 64, "%.9g", ddata[i]);
+          max_check( &fore, &aft, &exp, string);
+        }
+    }
+  
+  if( !aft && !exp)
+    {
+      *fmt_type = 0;
+      num = fore;
+    }
+  else if( !exp)
+    {
+      *fmt_type = 1;
+      num = fore + aft + 1;
+    }
+  else
+    {
+      *fmt_type = 2;
       num = fore + exp + 1 + aft + ( aft ? 1 : 0);
-      snprintf( string, len, "%%s%%%d.%d%se", num, aft, lflag ? "l" : ""  );
     }
 
-  return num;
+  if( min > num)
+    num = min;
+
+  *fmt_first = num;
+  *fmt_last = aft;
+}
+
+
+void format_print( short type, FILE *out, char *str, int len, 
+                        int prec, double value)
+{
+  switch( type)
+    {
+    case 0:
+      fprintf( out, "%s%*.9g", str, len, value);
+      break;
+    case 1:
+      fprintf( out, "%s%*.*f", str, len, prec, value);
+      break;
+    case 2:
+      fprintf( out, "%s%*.*e", str, len, prec, value);
+      break;
+    }
 }
 
 
@@ -317,7 +368,6 @@ int printer( struct mda_file *mda, int option[], char *argument[])
   // NULLing variables allows themto be free()'d safely if unused
   int  *log_dim = NULL;   // the width of the maximum scan number (for files)
   char *filename = NULL;
-  char  name_format[16];
 
   // used to tell if we are in unfinished scans, to be marked as such
   int unfinished;
@@ -326,7 +376,6 @@ int printer( struct mda_file *mda, int option[], char *argument[])
   int dim_first;
 
   int i, j, k;
-  int y;
 
   char *comment; // to make life easier
 
@@ -385,7 +434,7 @@ int printer( struct mda_file *mda, int option[], char *argument[])
         scan_pos[i] = 0;
 
       scan_array = (struct mda_scan **) 
-        malloc( mda->header->data_rank * sizeof(struct mda_scan *) );
+        malloc( (depth+1) * sizeof(struct mda_scan *) );
 
       if( !option[SINGLE] )
         {
@@ -432,10 +481,8 @@ int printer( struct mda_file *mda, int option[], char *argument[])
               i = sprintf( filename, "%s/%s", argument[DIRECTORY], 
                            argument[BASE]);
               for( j = 0 ; j < depth; j++)
-                {
-                  sprintf( name_format, "_%%0%ii", log_dim[j]);
-                  i += sprintf( filename + i, name_format, scan_pos[j] + 1);
-                }
+                i += sprintf( filename + i, "_%0*i", log_dim[j], 
+                              scan_pos[j] + 1);
               sprintf( filename + i, ".%s" , argument[EXTENSION]);
               
               if( (output = fopen( filename, "wt")) == NULL)
@@ -541,7 +588,7 @@ int printer( struct mda_file *mda, int option[], char *argument[])
                       fprintf( output,"%s %i-D Scan Values: ", 
                                comment, scan_array[i]->scan_rank);
                       for( j = 0; j < scan_array[i]->number_positioners; j++)
-                        fprintf( output,"%.9lg ", 
+                        fprintf( output,"%.9g ", 
                                  (scan_array[i]->positioners_data[j])
                                  [scan_pos[i]]);
                       for( j = 0; j < scan_array[i]->number_detectors; j++)
@@ -591,100 +638,42 @@ int printer( struct mda_file *mda, int option[], char *argument[])
                        comment, scan->scan_rank);
             }  
 
-          // this option causes a lot of weird code
           if( option[FRIENDLY])
             {
-              // variables used for making uniform column widths
-              char **format;
-              int format_count;
-              int *fmt_fore, *fmt_aft, *fmt_exp, *fmt_tot;
-              char string[64];
-              
+              int column_count;
+              short *fmt_type;
+              short *fmt_first, *fmt_last;
+
               int indices;
               int m;
 
-
-              // this lets me get away accounting for 
-              // extra columns from MERGE a lot easier
               indices = 1;
               if( option[MERGE])
                 indices += depth;
 
-              format_count = indices;
-              format_count += scan->number_positioners;
-              format_count += scan->number_detectors;
+              column_count = indices;
+              column_count += scan->number_positioners;
+              column_count += scan->number_detectors;
               if( option[MERGE])
                 for( i = 0; i < depth; i++)
                   {
-                    format_count += scan_array[i]->number_positioners;
-                    format_count += scan_array[i]->number_detectors;
+                    column_count += scan_array[i]->number_positioners;
+                    column_count += scan_array[i]->number_detectors;
                   }
               
-              fmt_fore = (int *) malloc( sizeof(int) * format_count);
-              fmt_aft = (int *) malloc( sizeof(int) * format_count);
-              fmt_exp = (int *) malloc( sizeof(int) * format_count);
-              fmt_tot = (int *) malloc( sizeof(int) * format_count);
-              format = (char **) malloc( sizeof(char *) * format_count);
-              for( i = 0; i < format_count; i++)
-                format[i] = (char *) malloc( sizeof(char) * 16);
-              
-              
-              for( i = 0; i < format_count; i++)
-                fmt_fore[i] = fmt_aft[i] = fmt_exp[i] = fmt_tot[i] = 0;
+              fmt_first = (short *) malloc( sizeof(short) * column_count);
+              fmt_last =  (short *) malloc( sizeof(short) * column_count);
+              fmt_type =  (short *) malloc( sizeof(short) * column_count);
               
               // include offset of comment and space
               for( i = 0; i < (indices - 1); i++)
-                fmt_fore[i] = num_width( scan_array[i]->last_point);
-              fmt_fore[indices-1] = num_width( scan->last_point);
-              for( i = 0; i < scan->last_point; i++)
                 {
-                  m = indices;
-                  if( option[MERGE])
-                    {
-                      for( k = 0; k < depth; k++)
-                        {
-                          for( j = 0; j < scan_array[k]->number_positioners; 
-                               j++, m++)
-                            {
-                              snprintf( string, 64, "%.9lg", 
-                                        (scan_array[k]->positioners_data[j])
-                                        [scan_pos[k]]);
-                              max_check( &fmt_fore[m], &fmt_aft[m], 
-                                         &fmt_exp[m], string);
-                            }
-                          for( j = 0; j < scan_array[k]->number_detectors; 
-                               j++, m++)
-                            {
-                              snprintf( string, 64, "%.9g",
-                                        (scan_array[k]->detectors_data[j])
-                                        [scan_pos[k]]);
-                              max_check( &fmt_fore[m], &fmt_aft[m], 
-                                         &fmt_exp[m], string);
-                            }
-                        }
-                    }
-                  for( j = 0; j < scan->number_positioners; j++, m++)
-                    {
-                      snprintf( string, 64, "%.9lg",
-                                (scan->positioners_data[j])[i]);
-                      max_check( &fmt_fore[m], &fmt_aft[m], 
-                                 &fmt_exp[m], string);
-                    }
-                  for( j = 0; j < scan->number_detectors; j++, m++)
-                    {
-                      snprintf( string, 64, "%.9g",
-                                (scan->detectors_data[j])[i]);
-                      max_check( &fmt_fore[m], &fmt_aft[m], 
-                                 &fmt_exp[m], string);
-                    }
+                  fmt_first[i] = num_width( scan_array[i]->last_point);
+                  fmt_last[i] = 0;
                 }
-              
-              for( i = 0; i < (indices - 1); i++)
-                snprintf( format[i], 16, "%%%di%%s", fmt_fore[i] );
-              snprintf( format[indices - 1], 16, "%%%di", 
-                        fmt_fore[indices - 1] );
-              for( i = 0; i < indices; i++)
-                fmt_tot[i] = fmt_fore[i];
+              fmt_first[indices-1] = num_width( scan->last_point);
+              fmt_last[indices-1] = 0;
+
               m = indices;
               if( option[MERGE])
                 {
@@ -692,78 +681,46 @@ int printer( struct mda_file *mda, int option[], char *argument[])
                     {
                       for( j = 0; j < scan_array[k]->number_positioners; 
                            j++, m++)
-                        {
-                          fmt_tot[m] = formatter( fmt_fore[m], fmt_aft[m], 
-                                         fmt_exp[m], format[m], 16, 1);
-                          y = num_width( m + 1);
-                          if( y > fmt_tot[m])
-                            {
-                              fmt_fore[m] += (y - fmt_tot[m]);
-                              fmt_tot[m] = formatter( fmt_fore[m], fmt_aft[m], 
-                                                      fmt_exp[m], format[m], 
-                                                      16, 1);
-                            }
-                        }
+                        formatter( num_width(m + 1), (void *) 
+                              &((scan_array[k]->positioners_data[j])
+                                [scan_pos[k]]) ,
+                              1, 1, &fmt_type[m], &fmt_first[m], &fmt_last[m]);
                       for( j = 0; j < scan_array[k]->number_detectors; 
                            j++, m++)
-                        {
-                          fmt_tot[m] = formatter( fmt_fore[m], fmt_aft[m], 
-                                         fmt_exp[m], format[m], 16, 0);
-                          y = num_width( m + 1);
-                          if( y > fmt_tot[m])
-                            {
-                              fmt_fore[m] += (y - fmt_tot[m]);
-                              fmt_tot[m] = formatter( fmt_fore[m], fmt_aft[m], 
-                                                      fmt_exp[m], format[m], 
-                                                      16, 0);
-                            }
-                        }
+                        formatter( num_width(m + 1), (void *) 
+                              &((scan_array[k]->detectors_data[j])
+                                [scan_pos[k]]),
+                              0, 1, &fmt_type[m], &fmt_first[m], &fmt_last[m]);
                     }
                 }
               for( j = 0; j < scan->number_positioners; j++, m++)
-                {
-                  fmt_tot[m] = formatter( fmt_fore[m], fmt_aft[m], 
-                                          fmt_exp[m], format[m], 16, 1);
-                  y = num_width( m + 1);
-                  if( y > fmt_tot[m])
-                    {
-                      fmt_fore[m] += (y - fmt_tot[m]);
-                      fmt_tot[m] = formatter( fmt_fore[m], fmt_aft[m], 
-                                              fmt_exp[m], format[m], 16, 1);
-                    }
-                }
+                formatter( num_width(m + 1), 
+                           (void *) scan->positioners_data[j], 1,
+                           scan->last_point, &fmt_type[m], &fmt_first[m],
+                           &fmt_last[m]);
               for( j = 0; j < scan->number_detectors; j++, m++)
-                {
-                  fmt_tot[m] = formatter( fmt_fore[m], fmt_aft[m], 
-                                          fmt_exp[m], format[m], 16, 0);
-                  y = num_width( m + 1);
-                  if( y > fmt_tot[m])
-                    {
-                      fmt_fore[m] += (y - fmt_tot[m]);
-                      fmt_tot[m] = formatter( fmt_fore[m], fmt_aft[m], 
-                                              fmt_exp[m], format[m], 16, 0);
-                    }
-                }
-
+                formatter( num_width(m + 1), 
+                           (void *) scan->detectors_data[j], 0, 
+                           scan->last_point, &fmt_type[m], &fmt_first[m], 
+                           &fmt_last[m]);
+            
               fprintf( output, "%s ", argument[COMMENT] );
               for( i = 0; i < m; i++)
                 {
                   if( i)
                     fprintf( output, "%s", argument[SEPARATOR] );
-                  snprintf( string, 64, "%%%dd", fmt_tot[i]);
-                  fprintf( output, string, i + 1);
+                  fprintf( output, "%*d", fmt_first[i], i + 1);
                 }
               fprintf( output, "\n" );
               for( i = 0; i < scan->last_point; i++)
                 {
                   k = strlen( argument[COMMENT] ) + 1;
-                  for( j = 0; j < k; j++)
-                    fprintf( output, " ");
+                  fprintf( output, "%*s", k, " ");
 
                   for( j = 0; j < (indices - 1); j++)
-                    fprintf( output, format[j], scan_pos[j] + 1, 
+                    fprintf( output, "%*i%s", fmt_first[j], scan_pos[j] + 1, 
                              argument[SEPARATOR]);
-                  fprintf( output, format[indices - 1], i+1);
+                  fprintf( output, "%*i", fmt_first[indices - 1], i+1);
                   m = indices;
                   if( option[MERGE])
                     {
@@ -771,32 +728,34 @@ int printer( struct mda_file *mda, int option[], char *argument[])
                         {
                           for( j = 0; j < scan_array[k]->number_positioners; 
                                j++, m++)
-                            fprintf( output, format[m], argument[SEPARATOR],
-                                     (scan_array[k]->positioners_data[j])
-                                     [scan_pos[k]]);
+                            format_print( fmt_type[m], output, 
+                                          argument[SEPARATOR], fmt_first[m], 
+                                          fmt_last[m], 
+                                          (scan_array[k]->positioners_data[j])
+                                          [scan_pos[k]] );
                           for( j = 0; j < scan_array[k]->number_detectors; 
                                j++, m++)
-                            fprintf( output, format[m], argument[SEPARATOR], 
-                                     (scan_array[k]->detectors_data[j])
-                                     [scan_pos[k]]);
+                            format_print( fmt_type[m], output, 
+                                          argument[SEPARATOR], fmt_first[m], 
+                                          fmt_last[m], 
+                                          (scan_array[k]->detectors_data[j])
+                                          [scan_pos[k]] );
                         }
                     }
                   for( j = 0; j < scan->number_positioners; j++, m++)
-                    fprintf( output, format[m], argument[SEPARATOR],
-                             (scan->positioners_data[j])[i]);
+                    format_print( fmt_type[m], output, argument[SEPARATOR], 
+                                  fmt_first[m], fmt_last[m], 
+                                  (scan->positioners_data[j])[i] );
                   for( j = 0; j < scan->number_detectors; j++, m++)
-                    fprintf( output, format[m], argument[SEPARATOR],
-                             (scan->detectors_data[j])[i]);
+                    format_print( fmt_type[m], output, argument[SEPARATOR], 
+                                  fmt_first[m], fmt_last[m], 
+                                  (scan->detectors_data[j])[i] );
                   fprintf( output,"\n");
                 }
 
-              free( fmt_fore);
-              free( fmt_aft);
-              free( fmt_exp);
-              free( fmt_tot);
-              for( i = 0; i < format_count; i++)
-                free( format[i]);
-              free( format);
+              free( fmt_first);
+              free( fmt_last);
+              free( fmt_type);
             }
           else
             {
@@ -815,7 +774,7 @@ int printer( struct mda_file *mda, int option[], char *argument[])
                         {
                           for( j = 0; j < scan_array[k]->number_positioners; 
                                j++)
-                            fprintf( output,"%s%.9lg", argument[SEPARATOR],
+                            fprintf( output,"%s%.9g", argument[SEPARATOR],
                                      (scan_array[k]->positioners_data[j])
                                      [scan_pos[k]]);
                           for( j = 0; j < scan_array[k]->number_detectors; j++)
@@ -825,7 +784,7 @@ int printer( struct mda_file *mda, int option[], char *argument[])
                         }
                     }
                   for( j = 0; j < scan->number_positioners; j++)
-                    fprintf( output,"%s%.9lg", argument[SEPARATOR],
+                    fprintf( output,"%s%.9g", argument[SEPARATOR],
                              (scan->positioners_data[j])[i]);
                   for( j = 0; j < scan->number_detectors; j++)
                     fprintf( output,"%s%.9g", argument[SEPARATOR],

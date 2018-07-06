@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2012 UChicago Argonne, LLC,
+* Copyright (c) 2013 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -22,14 +22,14 @@
   1.0   -- October 2009
            Renamed structures.
   1.1   -- November 2010
-  1.1.1 -- March 2011
+  1.1.1 -- December 2010
   1.2   -- March 2011
            Fixed integer issues by tying short to int16_t, long to int32_t,
            and char to int8_t
   1.2.1 -- January 2012
   1.2.2 -- June 2012
            Added preprocessor commands for c++ compatibility
-
+  1.3.0 -- February 2013
  */
 
 

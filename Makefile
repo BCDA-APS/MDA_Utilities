@@ -69,10 +69,12 @@ install : all
 	$(INSTALL_EXE) mda-info $(DESTDIR)$(bindir)/
 	$(INSTALL_EXE) mda-dump $(DESTDIR)$(bindir)/
 	$(INSTALL_EXE) mda2ascii $(DESTDIR)$(bindir)/
+	$(INSTALL_EXE) mdatree2ascii $(DESTDIR)$(bindir)/
 	$(INSTALL_OTHER) libmda-load.a $(DESTDIR)$(libdir)/
 	$(INSTALL_OTHER) mda-load.h $(DESTDIR)$(includedir)/
 	$(INSTALL_OTHER) doc/mda-ls.1 $(DESTDIR)$(mandir)/
 	$(INSTALL_OTHER) doc/mda-info.1 $(DESTDIR)$(mandir)/
 	$(INSTALL_OTHER) doc/mda-dump.1 $(DESTDIR)$(mandir)/
 	$(INSTALL_OTHER) doc/mda2ascii.1 $(DESTDIR)$(mandir)/
+	$(INSTALL_OTHER) doc/mdatree2ascii.1 $(DESTDIR)$(mandir)/
 
