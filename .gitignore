@@ -1,52 +1,19 @@
-# Prerequisites
-*.d
-
-# Object files
+mda2ascii
+mda-ls
+mda-info
+mda-dump
+libmda-load.a
 *.o
-*.ko
-*.obj
-*.elf
+*.mda
+test/
+doc/*
+!doc/*.1
+!doc/*.tex
+!doc/*.txt
+!doc/LICENSE
+!doc/Makefile
+release/*
+!release/index.html
+!release/previous.html
+!release/Makefile
 
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
-
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
