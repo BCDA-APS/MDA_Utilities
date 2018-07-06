@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2010 UChicago Argonne, LLC,
+* Copyright (c) 2011 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -23,6 +23,10 @@
            Added showing numbering of detectors, positioners, 
            and triggers as done by saveData.
   1.1   -- November 2010
+  1.1.1 -- March 2011
+  1.2   -- March 2011
+           Fixed integer issues by tying short to int16_t, long to int32_t,
+           and char to int8_t.  Changed %li to %i in printf's.
 
  */
 
@@ -40,7 +44,7 @@
 
 //#include <mcheck.h>
 
-#define VERSION "1.1.0 (November 2010)"
+#define VERSION "1.2 (March 2011)"
 
 
 
@@ -62,16 +66,16 @@ int information( struct mda_fileinfo *fileinfo)
 
 
   printf("MDA file version = %g\n", fileinfo->version);
-  printf("     Scan number = %li\n", fileinfo->scan_number);
+  printf("     Scan number = %i\n", fileinfo->scan_number);
   printf("  Dimensionality = %i\n", fileinfo->data_rank);
   printf("       Scan size = ");
   if( fileinfo->last_topdim_point != fileinfo->dimensions[0] )
-    printf("(%li)", fileinfo->last_topdim_point );
+    printf("(%i)", fileinfo->last_topdim_point );
   for( i = 0; i < fileinfo->data_rank; i++)
     {
       if( i)
 	printf("x");
-      printf( "%li", fileinfo->dimensions[i]);
+      printf( "%i", fileinfo->dimensions[i]);
     }
   printf("\n");
   printf(" Scan start time = %s\n", fileinfo->time);
@@ -82,12 +86,12 @@ int information( struct mda_fileinfo *fileinfo)
       printf("Actual scan size = ");
       if( fileinfo->last_topdim_point != 
           fileinfo->scaninfos[0]->requested_points )
-        printf( "(%li)", fileinfo->last_topdim_point);
+        printf( "(%i)", fileinfo->last_topdim_point);
       for( i = 0; i < fileinfo->data_rank; i++)
         {
           if( i)
             printf("x");
-          printf( "%li", fileinfo->scaninfos[i]->requested_points);
+          printf( "%i", fileinfo->scaninfos[i]->requested_points);
         }
       printf("\n");
     }
@@ -165,7 +169,7 @@ void version(void)
 {
   printf("mda-info %s\n"
          "\n"
-         "Copyright (c) 2010 UChicago Argonne, LLC,\n"
+         "Copyright (c) 2011 UChicago Argonne, LLC,\n"
          "as Operator of Argonne National Laboratory.\n"
          "\n"
          "Written by Dohn Arms, dohnarms@anl.gov.\n",

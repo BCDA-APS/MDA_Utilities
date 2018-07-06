@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2010 UChicago Argonne, LLC,
+* Copyright (c) 2011 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -13,10 +13,14 @@
   
   0.1.0 -- May 2009
   1.0.0 -- October 2009
-               Added Search capabilities
+           Added Search capabilities
   1.0.1 -- November 2009
-               Redid directory scanning code to not use scandir()
+           Redid directory scanning code to not use scandir()
   1.1   -- November 2010
+  1.1.1 -- March 2011
+  1.2   -- March 2011
+           Fixed integer issues by tying short to int16_t, long to int32_t,
+           and char to int8_t.  Changed %li to %i in printf's.
 
  */
 
@@ -33,7 +37,7 @@
 #include "mda-load.h"
 
 
-#define VERSION "1.1.0 (November 2010)"
+#define VERSION "1.2 (March 2011)"
 
 
 // this function relies too much on the input format not changing
@@ -106,7 +110,7 @@ void version(void)
 {
   printf( "mda-ls %s\n"
           "\n"
-          "Copyright (c) 2010 UChicago Argonne, LLC,\n"
+          "Copyright (c) 2011 UChicago Argonne, LLC,\n"
           "as Operator of Argonne National Laboratory.\n"
           "\n"
           "Written by Dohn Arms, dohnarms@anl.gov.\n", VERSION);
@@ -393,14 +397,14 @@ int main( int argc, char *argv[])
       else
         {
           if( fileinfos[i]->dimensions[0] != fileinfos[i]->last_topdim_point)
-            j = snprintf( string, STRING_SIZE, "%li(%li)", 
+            j = snprintf( string, STRING_SIZE, "%i(%i)", 
                           fileinfos[i]->last_topdim_point, 
                           fileinfos[i]->dimensions[0]);
           else
-            j = snprintf( string, STRING_SIZE, "%li", fileinfos[i]->dimensions[0]);
+            j = snprintf( string, STRING_SIZE, "%i", fileinfos[i]->dimensions[0]);
 
           for( k = 1; k < fileinfos[i]->data_rank; k++)
-            j += snprintf( &string[j], STRING_SIZE - j, "x%li", 
+            j += snprintf( &string[j], STRING_SIZE - j, "x%i", 
                            fileinfos[i]->dimensions[k]);
 
           if( j > max_dimlen)
@@ -439,12 +443,12 @@ int main( int argc, char *argv[])
         }
 
       if( fileinfos[i]->dimensions[0] != fileinfos[i]->last_topdim_point)
-        j = snprintf( string, STRING_SIZE, "%li(%li)", 
+        j = snprintf( string, STRING_SIZE, "%i(%i)", 
                       fileinfos[i]->last_topdim_point, fileinfos[i]->dimensions[0]);
       else
-        j = snprintf( string, STRING_SIZE, "%li", fileinfos[i]->dimensions[0]);
+        j = snprintf( string, STRING_SIZE, "%i", fileinfos[i]->dimensions[0]);
       for( k = 1; k < fileinfos[i]->data_rank; k++)
-        j += snprintf( &string[j], STRING_SIZE - j, "x%li", 
+        j += snprintf( &string[j], STRING_SIZE - j, "x%i", 
                        fileinfos[i]->dimensions[k]);
       printf(dim_format, string);
 

@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2010 UChicago Argonne, LLC,
+* Copyright (c) 2011 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -33,10 +33,19 @@
   1.1   -- November 2010
   1.1.1 -- December 2010
            Forgot to comment out warning generated with incomplete scans 
-               and -a.
+               and -a. (Snuck into 1.1 package within minutes of release)
+  1.2   -- March 2011
+           Fixed integer issues by tying short to int16_t, long to int32_t,
+           and char to int8_t.  Changed %li to %i in printf's.  For MacOS
+           Darwin, add fix to use xdr_char instead of xdr_int8_t.
 
 */
 
+/*
+  In case you are able to get the program to compile under Windows,
+  then use "#define WINDOWS" to enable the changing of backslashes 
+  in directories to forward slahes.
+*/
 
 /********************  mda_ascii.c  ***************/
 
@@ -48,13 +57,10 @@
 
 //#include <mcheck.h>
 
-// uncommenting the following converts \'s in argument paths to /'s
-//#define WINDOWS
-
 #include "mda-load.h"
 
-#define VERSION       "1.1.1 (December 2010)"
-#define VERSIONNUMBER "1.1.1"
+#define VERSION       "1.2 (March 2011)"
+#define VERSIONNUMBER "1.2"
 
 
 enum { MERGE, TRIM, FRIENDLY, EXTRA, SINGLE, STDOUT, ALL, DIMENSION };
@@ -81,38 +87,38 @@ void print_extra( struct mda_file *mda, FILE *output, char *comment)
 	  fprintf( output,"\"");
 	  switch(mda->extra->pvs[i]->type)
 	    {
-	    case DBR_STRING:
+	    case EXTRA_PV_STRING:
 	      fprintf( output,"%s", 
 		       (char *) mda->extra->pvs[i]->values);
 	      break;
-	    case DBR_CTRL_CHAR:
+	    case EXTRA_PV_INT8:
 	      for( j = 0; j < mda->extra->pvs[i]->count; j++)
 		{
 		  if( j)
 		    fprintf( output,",");
 		  fprintf( output,"%i", 
-			   ((char *) mda->extra->pvs[i]->values)[j]);
+			   ((int8_t *) mda->extra->pvs[i]->values)[j]);
 		}
 	      break;
-	    case DBR_CTRL_SHORT:
+	    case EXTRA_PV_INT16:
 	      for( j = 0; j < mda->extra->pvs[i]->count; j++)
 		{
 		  if( j)
 		    fprintf( output,",");
 		  fprintf( output,"%i", 
-			   ((short *) mda->extra->pvs[i]->values)[j]);
+			   ((int16_t *) mda->extra->pvs[i]->values)[j]);
 		}
 	      break;
-	    case DBR_CTRL_LONG:
+	    case EXTRA_PV_INT32:
 	      for( j = 0; j < mda->extra->pvs[i]->count; j++)
 		{
 		  if( j)
 		    fprintf( output,",");
-		  fprintf( output,"%li", 
-			   ((long *) mda->extra->pvs[i]->values)[j]);
+		  fprintf( output,"%i", 
+			   ((int32_t *) mda->extra->pvs[i]->values)[j]);
 		}
 	      break;
-	    case DBR_CTRL_FLOAT:
+	    case EXTRA_PV_FLOAT:
 	      for( j = 0; j < mda->extra->pvs[i]->count; j++)
 		{
 		  if( j)
@@ -121,7 +127,7 @@ void print_extra( struct mda_file *mda, FILE *output, char *comment)
 			   ((float *) mda->extra->pvs[i]->values)[j]);
 		}
 	      break;
-	    case DBR_CTRL_DOUBLE:
+	    case EXTRA_PV_DOUBLE:
 	      for( j = 0; j < mda->extra->pvs[i]->count; j++)
 		{
 		  if( j)
@@ -132,7 +138,7 @@ void print_extra( struct mda_file *mda, FILE *output, char *comment)
 	      break;
 	    }
 	  fprintf( output,"\"");
-	  if( mda->extra->pvs[i]->type != DBR_STRING)
+	  if( mda->extra->pvs[i]->type != EXTRA_PV_STRING)
 	    fprintf( output,", %s", mda->extra->pvs[i]->unit);
 	  fprintf( output,"\n");
 	} 
@@ -147,7 +153,7 @@ void print_head( struct mda_file *mda, FILE *output, char *comment)
   int i;
 
   fprintf( output,"%s MDA File Version = %g\n", comment, mda->header->version);
-  fprintf( output,"%s Scan number = %li\n", comment, mda->header->scan_number);
+  fprintf( output,"%s Scan number = %i\n", comment, mda->header->scan_number);
   fprintf( output,"%s Overall scan dimension = %i-D\n", comment, 
 	   mda->header->data_rank);
   
@@ -156,7 +162,7 @@ void print_head( struct mda_file *mda, FILE *output, char *comment)
     {
       if( i)
 	fprintf( output," x ");
-      fprintf( output,"%li", mda->header->dimensions[i]);
+      fprintf( output,"%i", mda->header->dimensions[i]);
     }
   fprintf( output,"\n");
 
@@ -399,14 +405,9 @@ int printer( struct mda_file *mda, int option[], char *argument[])
       for(;;) // infinite loop
         {
           /* 
-             Here we check to make sure scan is not NULL.
-             Once we find a NULL scan, it's all over (we 'goto' out), 
-             due to way the MDA file is set up, and we are going through
-             the scans in "file order". 
-             
-             Yes, using 'goto' is "bad style" in C programming, but this
-             is the classic situation when its use is justified, as I'd 
-             have to add extra code to get out of the infinite loop.
+             We check to make sure scan is not NULL.
+             Once we find a NULL scan, we skip to the end of the loop,
+             where it does the check to see if there might be more scans.
           */
 
           scan_array[0] = mda->scan;
@@ -522,7 +523,7 @@ int printer( struct mda_file *mda, int option[], char *argument[])
                 {
                   fprintf( output, "%s %i-D Scan Point\n", comment, 
                            scan_array[i]->scan_rank);
-                  fprintf( output, "%s Current point = %i of %li\n", comment, 
+                  fprintf( output, "%s Current point = %i of %i\n", comment, 
                            scan_pos[i] + 1, scan_array[i]->requested_points);
                   fprintf( output,"%s Scanner = %s\n", comment, 
                            scan_array[i]->name);
@@ -549,7 +550,7 @@ int printer( struct mda_file *mda, int option[], char *argument[])
                 }
 
               fprintf( output,"%s %d-D Scan\n", comment, scan->scan_rank);
-              fprintf( output,"%s Points completed = %li of %li\n", 
+              fprintf( output,"%s Points completed = %i of %i\n", 
                        comment, scan->last_point, scan->requested_points);
               fprintf( output,"%s Scanner = %s\n", comment, scan->name);
               fprintf( output,"%s Scan time = %s\n", comment, scan->time);
@@ -928,7 +929,7 @@ void version(void)
 {
   printf( "mda2ascii %s\n"
           "\n"
-          "Copyright (c) 2010 UChicago Argonne, LLC,\n"
+          "Copyright (c) 2011 UChicago Argonne, LLC,\n"
           "as Operator of Argonne National Laboratory.\n"
           "\n"
           "Written by Dohn Arms, dohnarms@anl.gov.\n", VERSION);

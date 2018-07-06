@@ -5,15 +5,10 @@ mda-dump
 libmda-load.a
 *.o
 *.mda
-test/
 doc/*
 !doc/*.1
 !doc/*.tex
+!doc/*.pdf
 !doc/*.txt
 !doc/LICENSE
 !doc/Makefile
-release/*
-!release/index.html
-!release/previous.html
-!release/Makefile
-
