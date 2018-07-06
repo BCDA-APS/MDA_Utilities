@@ -7,7 +7,7 @@ Send comments to dohnarms@anl.gov
 See LICENSE file for licensing of these programs and code.
 
 The location of these utilities on the Internet is:
-http://www.xray.aps.anl.gov/~dohnarms/mdautils/
+https://epics.anl.gov/bcda/mdautils
 
 There is also a github repository at:
 https://github.com/dohnarms/MDA_Utilities
@@ -114,3 +114,5 @@ If you want the files in a different directory, change the "prefix"
 variable in the file Makefile, then run "make install".  Otherwise,
 you can copy the files wherever you like.
 
+If you used "make install" to install the files, then you can use "make
+uninstall" to remove those files.

@@ -1,6 +1,17 @@
 MDA Utilities Version Changelog
 
 
+From 1.4.1 to 1.4.2
+
+mda2ascii:
+    Added the -b switch, which will comment out blank lines.  These
+    blanks lines can cause problems for readers and this should have
+    been the default behavior, but I don't want to break any existing
+    parsers that expect these blank lines.
+Makefile:
+    Added an "uninstall" option.
+
+
 From 1.4.0 to 1.4.1
 
 mda2ascii:
