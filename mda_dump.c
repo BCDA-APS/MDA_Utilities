@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2011 UChicago Argonne, LLC,
+* Copyright (c) 2012 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -26,7 +26,8 @@
            Fixed integer issues by tying short to int16_t, long to int32_t,
            and char to int8_t.  Changed %li to %i in printf's.  For MacOS
            Darwin, add fix to use xdr_char instead of xdr_int8_t.
-
+  1.2.1 -- January 2012
+           Minor build tweak
  */
 
 
@@ -43,8 +44,9 @@
 
 #include <unistd.h>
 
-#define VERSION       "1.2 (March 2011)"
-#define VERSIONNUMBER "1.2"
+#define VERSION       "1.2.1 (January 2012)"
+#define YEAR          "2012"
+#define VERSIONNUMBER "1.2.1"
 
 
 
@@ -570,11 +572,11 @@ void version(void)
 {
   printf("mda-dump %s\n"
          "\n"
-         "Copyright (c) 2011 UChicago Argonne, LLC,\n"
+         "Copyright (c) %s UChicago Argonne, LLC,\n"
          "as Operator of Argonne National Laboratory.\n"
          "\n"
          "Written by Dohn Arms, dohnarms@anl.gov.\n",
-         VERSION);
+         VERSION, YEAR);
 }
 
 

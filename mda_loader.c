@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2011 UChicago Argonne, LLC,
+* Copyright (c) 2012 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -38,6 +38,7 @@
            Renamed DBR_* type variables to EXTRA_PV_* type variables, to
            make explicit the type of integer used (which broke compatibility
            with the EPICS DBR type names).
+  1.2.1 -- January 2012
 
  */
 

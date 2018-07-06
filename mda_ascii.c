@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2011 UChicago Argonne, LLC,
+* Copyright (c) 2012 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -38,7 +38,10 @@
            Fixed integer issues by tying short to int16_t, long to int32_t,
            and char to int8_t.  Changed %li to %i in printf's.  For MacOS
            Darwin, add fix to use xdr_char instead of xdr_int8_t.
-
+  1.2.1 -- November 2011
+           Fixed bug in -f mode, where long "l" modifier was in wrong place
+           for certain cases, confusing printf.
+           Simplified code a bit to reduce pointer dereferencing
 */
 
 /*
@@ -59,8 +62,10 @@
 
 #include "mda-load.h"
 
-#define VERSION       "1.2 (March 2011)"
-#define VERSIONNUMBER "1.2"
+#define VERSION       "1.2.1 (January 2012)"
+#define YEAR          "2012"
+#define VERSIONNUMBER "1.2.1"
+
 
 
 enum { MERGE, TRIM, FRIENDLY, EXTRA, SINGLE, STDOUT, ALL, DIMENSION };
@@ -68,78 +73,75 @@ enum { COMMENT, SEPARATOR, BASE, EXTENSION, DIRECTORY };
 
 
 
-void print_extra( struct mda_file *mda, FILE *output, char *comment)
+void print_extra( struct mda_extra *extra, FILE *output, char *comment)
 {
+  struct mda_pv *pv;
+
   int i, j;
 
   fprintf( output,"%s  Extra PV: name, descr, values (, unit)\n", comment );
 
   fprintf( output,"\n");
 
-  if( mda->extra)
+  if( extra != NULL)
     {
-      for( i = 0 ; i < mda->extra->number_pvs; i++)
+      for( i = 0 ; i < extra->number_pvs; i++)
 	{ 
+          pv = extra->pvs[i];
+
 	  fprintf( output,"%s Extra PV %i: %s, %s, ", comment, i+1, 
-		   mda->extra->pvs[i]->name,
-		   mda->extra->pvs[i]->description);
+		   pv->name, pv->description);
 	  
 	  fprintf( output,"\"");
-	  switch(mda->extra->pvs[i]->type)
+	  switch(pv->type)
 	    {
 	    case EXTRA_PV_STRING:
-	      fprintf( output,"%s", 
-		       (char *) mda->extra->pvs[i]->values);
+	      fprintf( output,"%s", (char *) pv->values);
 	      break;
 	    case EXTRA_PV_INT8:
-	      for( j = 0; j < mda->extra->pvs[i]->count; j++)
+	      for( j = 0; j < pv->count; j++)
 		{
 		  if( j)
 		    fprintf( output,",");
-		  fprintf( output,"%i", 
-			   ((int8_t *) mda->extra->pvs[i]->values)[j]);
+		  fprintf( output,"%i", ((int8_t *) pv->values)[j]);
 		}
 	      break;
 	    case EXTRA_PV_INT16:
-	      for( j = 0; j < mda->extra->pvs[i]->count; j++)
+	      for( j = 0; j < pv->count; j++)
 		{
 		  if( j)
 		    fprintf( output,",");
-		  fprintf( output,"%i", 
-			   ((int16_t *) mda->extra->pvs[i]->values)[j]);
+		  fprintf( output,"%i", ((int16_t *) pv->values)[j]);
 		}
 	      break;
 	    case EXTRA_PV_INT32:
-	      for( j = 0; j < mda->extra->pvs[i]->count; j++)
+	      for( j = 0; j < pv->count; j++)
 		{
 		  if( j)
 		    fprintf( output,",");
-		  fprintf( output,"%i", 
-			   ((int32_t *) mda->extra->pvs[i]->values)[j]);
+		  fprintf( output,"%i", ((int32_t *) pv->values)[j]);
 		}
 	      break;
 	    case EXTRA_PV_FLOAT:
-	      for( j = 0; j < mda->extra->pvs[i]->count; j++)
+	      for( j = 0; j < pv->count; j++)
 		{
 		  if( j)
 		    fprintf( output,",");
-		  fprintf( output,"%.9g", 
-			   ((float *) mda->extra->pvs[i]->values)[j]);
+		  fprintf( output,"%.9g", ((float *) pv->values)[j]);
 		}
 	      break;
 	    case EXTRA_PV_DOUBLE:
-	      for( j = 0; j < mda->extra->pvs[i]->count; j++)
+	      for( j = 0; j < pv->count; j++)
 		{
 		  if( j)
 		    fprintf( output,",");
-		  fprintf( output,"%.9lg", 
-			   ((double *) mda->extra->pvs[i]->values)[j]);
+		  fprintf( output,"%.9lg", ((double *) pv->values)[j]);
 		}
 	      break;
 	    }
 	  fprintf( output,"\"");
-	  if( mda->extra->pvs[i]->type != EXTRA_PV_STRING)
-	    fprintf( output,", %s", mda->extra->pvs[i]->unit);
+	  if( pv->type != EXTRA_PV_STRING)
+	    fprintf( output,", %s", pv->unit);
 	  fprintf( output,"\n");
 	} 
 
@@ -148,25 +150,25 @@ void print_extra( struct mda_file *mda, FILE *output, char *comment)
 }
 
 
-void print_head( struct mda_file *mda, FILE *output, char *comment)
+void print_head( struct mda_header *head, FILE *output, char *comment)
 {
   int i;
 
-  fprintf( output,"%s MDA File Version = %g\n", comment, mda->header->version);
-  fprintf( output,"%s Scan number = %i\n", comment, mda->header->scan_number);
+  fprintf( output,"%s MDA File Version = %g\n", comment, head->version);
+  fprintf( output,"%s Scan number = %i\n", comment, head->scan_number);
   fprintf( output,"%s Overall scan dimension = %i-D\n", comment, 
-	   mda->header->data_rank);
+	   head->data_rank);
   
   fprintf( output,"%s Total requested scan size = ", comment);
-  for( i = 0; i < mda->header->data_rank; i++)
+  for( i = 0; i < head->data_rank; i++)
     {
       if( i)
 	fprintf( output," x ");
-      fprintf( output,"%i", mda->header->dimensions[i]);
+      fprintf( output,"%i", head->dimensions[i]);
     }
   fprintf( output,"\n");
 
-  if( !mda->header->regular)
+  if( !head->regular)
     fprintf( output,"%s Dimensions changed during the scan.\n", comment);
   
   fprintf( output,"\n\n");
@@ -176,8 +178,10 @@ void print_head( struct mda_file *mda, FILE *output, char *comment)
 int print_pos_det_info(struct mda_scan *scan, FILE *output, 
                        char *comment, int index_offset)
 {
-  int col;
+  struct mda_positioner *pos;  
+  struct mda_detector   *det;
 
+  int col;
   int i;
 
 
@@ -185,30 +189,28 @@ int print_pos_det_info(struct mda_scan *scan, FILE *output,
       
   for( i = 0; i < scan->number_positioners; i++)
     {
+      pos = scan->positioners[i];
+      
       col++;
       fprintf( output, "%s  %3d  ", comment, col + index_offset);
-      fprintf( output,"[%i-D Positioner %i]  ", scan->scan_rank,
-	       scan->positioners[i]->number + 1);
+      fprintf( output,"[%i-D Positioner %i]  ", scan->scan_rank, 
+               pos->number + 1);
       fprintf( output,"%s, %s, %s, %s, %s, %s, %s\n", 
-	       scan->positioners[i]->name,
-	       scan->positioners[i]->description, 
-	       scan->positioners[i]->step_mode,
-	       scan->positioners[i]->unit,
-	       scan->positioners[i]->readback_name, 
-	       scan->positioners[i]->readback_description,
-	       scan->positioners[i]->readback_unit );
+	       pos->name, pos->description, pos->step_mode, pos->unit,
+	       pos->readback_name, pos->readback_description,
+	       pos->readback_unit );
     }
 
   for( i = 0; i < scan->number_detectors; i++)
     {
+      det = scan->detectors[i];
+
       col++;
       fprintf( output, "%s  %3i  ", comment, col + index_offset);
       fprintf( output,"[%i-D Detector %3i]  ", scan->scan_rank,
-	       scan->detectors[i]->number + 1);
+	       det->number + 1);
       fprintf( output,"%s, %s, %s\n", 
-	       scan->detectors[i]->name,
-	       scan->detectors[i]->description,
-	       scan->detectors[i]->unit );
+	       det->name, det->description, det->unit );
     }
 
   return col;
@@ -234,6 +236,7 @@ int num_width( int number)
 }
 
 
+// This is for the -f option
 void max_check( int *fore_max, int *aft_max, int *exp_max, char *string)
 {
   char *p, *q;
@@ -273,15 +276,15 @@ void max_check( int *fore_max, int *aft_max, int *exp_max, char *string)
     *exp_max = k;
 }
 
+// This is for the -f option
 int formatter( int fore, int aft, int exp, char *string, int len, int lflag)
 {
   int num;
-  //  printf("%d %d %d - ", fore, aft, exp);
 
   if( !aft && !exp)
     {
       num = fore;
-      snprintf( string, len, "%%s%%%d%s.9g", num, lflag ? "l" : ""  );
+      snprintf( string, len, "%%s%%%d.9%sg", num, lflag ? "l" : ""  );
     }
   else if( !exp)
     {
@@ -293,8 +296,6 @@ int formatter( int fore, int aft, int exp, char *string, int len, int lflag)
       num = fore + exp + 1 + aft + ( aft ? 1 : 0);
       snprintf( string, len, "%%s%%%d.%d%se", num, aft, lflag ? "l" : ""  );
     }
-
-  //  printf("%s\n", string);
 
   return num;
 }
@@ -361,7 +362,7 @@ int printer( struct mda_file *mda, int option[], char *argument[])
         }
       
       free(filename);
-      filename = NULL;  // for later, make free() happy
+      filename = NULL;  // for make free() happy later
     }
 
   first = 1;
@@ -449,9 +450,9 @@ int printer( struct mda_file *mda, int option[], char *argument[])
                 {
                   fprintf( output,"%s%s mda2ascii %s generated output\n\n\n", 
                            comment, comment, VERSIONNUMBER);
-                  print_head( mda, output, comment);
+                  print_head( mda->header, output, comment);
                   if( !option[EXTRA] )
-                    print_extra( mda, output, comment);
+                    print_extra( mda->extra, output, comment);
                   else
                     {
                       FILE *extra_output;
@@ -485,7 +486,7 @@ int printer( struct mda_file *mda, int option[], char *argument[])
                       fprintf( extra_output,
                                "%s%s mda2ascii %s generated output\n\n\n", 
                                comment, comment, VERSIONNUMBER);
-                      print_extra( mda, extra_output, comment);
+                      print_extra( mda->extra, extra_output, comment);
       
                       free( extra_filename);
                       fclose( extra_output);
@@ -617,7 +618,6 @@ int printer( struct mda_file *mda, int option[], char *argument[])
                     format_count += scan_array[i]->number_detectors;
                   }
               
-             
               fmt_fore = (int *) malloc( sizeof(int) * format_count);
               fmt_aft = (int *) malloc( sizeof(int) * format_count);
               fmt_exp = (int *) malloc( sizeof(int) * format_count);
@@ -754,8 +754,8 @@ int printer( struct mda_file *mda, int option[], char *argument[])
               fprintf( output, "\n" );
               for( i = 0; i < scan->last_point; i++)
                 {
-                  // a little cheesy, but whatever
-                  for( j = 0; j < (strlen( argument[COMMENT] ) + 1); j++)
+                  k = strlen( argument[COMMENT] ) + 1;
+                  for( j = 0; j < k; j++)
                     fprintf( output, " ");
 
                   for( j = 0; j < (indices - 1); j++)
@@ -780,10 +780,10 @@ int printer( struct mda_file *mda, int option[], char *argument[])
                         }
                     }
                   for( j = 0; j < scan->number_positioners; j++, m++)
-                    fprintf( output,format[m], argument[SEPARATOR],
+                    fprintf( output, format[m], argument[SEPARATOR],
                              (scan->positioners_data[j])[i]);
                   for( j = 0; j < scan->number_detectors; j++, m++)
-                    fprintf( output,format[m], argument[SEPARATOR],
+                    fprintf( output, format[m], argument[SEPARATOR],
                              (scan->detectors_data[j])[i]);
                   fprintf( output,"\n");
                 }
@@ -929,10 +929,10 @@ void version(void)
 {
   printf( "mda2ascii %s\n"
           "\n"
-          "Copyright (c) 2011 UChicago Argonne, LLC,\n"
+          "Copyright (c) %s UChicago Argonne, LLC,\n"
           "as Operator of Argonne National Laboratory.\n"
           "\n"
-          "Written by Dohn Arms, dohnarms@anl.gov.\n", VERSION);
+          "Written by Dohn Arms, dohnarms@anl.gov.\n", VERSION, YEAR);
 }
 
 
@@ -959,10 +959,6 @@ int main( int argc, char *argv[])
       printf( "For help, type: mda2ascii -h\n");
       return 0;
     }
-
-  /* 
-     We start by parsing the command line.
-  */
 
   dim_flag = 1;
   option[DIMENSION] = -1;
@@ -1183,7 +1179,7 @@ int main( int argc, char *argv[])
       /* Now we load up the MDA file into the mda structure. */
       if( (input = fopen( argv[i], "rb")) == NULL)
 	{
-	  fprintf(stderr, "Can't open file \"%s\"for reading!\n", argv[i]);
+	  fprintf(stderr, "Can't open file \"%s\" for reading!\n", argv[i]);
 	  return 1;
 	}
       if( (mda = mda_load( input)) == NULL )
