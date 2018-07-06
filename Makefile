@@ -78,6 +78,7 @@ libdir     = $(prefix)/lib
 INSTALL_MKDIR = mkdir -p
 INSTALL_EXE   = install -c -m 0755
 INSTALL_OTHER = install -c -m 0644
+UNINSTALL_RM = -rm
 
 install : all
 	$(INSTALL_MKDIR) $(DESTDIR)$(bindir)
@@ -97,3 +98,16 @@ install : all
 	$(INSTALL_OTHER) doc/mda2ascii.1 $(DESTDIR)$(mandir)/
 	$(INSTALL_OTHER) doc/mdatree2ascii.1 $(DESTDIR)$(mandir)/
 
+uninstall :
+	$(UNINSTALL_RM) $(DESTDIR)$(bindir)/mda-ls
+	$(UNINSTALL_RM) $(DESTDIR)$(bindir)/mda-info
+	$(UNINSTALL_RM) $(DESTDIR)$(bindir)/mda-dump
+	$(UNINSTALL_RM) $(DESTDIR)$(bindir)/mda2ascii
+	$(UNINSTALL_RM) $(DESTDIR)$(bindir)/mdatree2ascii
+	$(UNINSTALL_RM) $(DESTDIR)$(libdir)/libmda-load.a
+	$(UNINSTALL_RM) $(DESTDIR)$(includedir)/mda-load.h
+	$(UNINSTALL_RM) $(DESTDIR)$(mandir)/mda-ls.1
+	$(UNINSTALL_RM) $(DESTDIR)$(mandir)/mda-info.1
+	$(UNINSTALL_RM) $(DESTDIR)$(mandir)/mda-dump.1
+	$(UNINSTALL_RM) $(DESTDIR)$(mandir)/mda2ascii.1
+	$(UNINSTALL_RM) $(DESTDIR)$(mandir)/mdatree2ascii.1

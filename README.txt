@@ -1,5 +1,5 @@
-MDA Utilities v1.4.1
-August 2016
+MDA Utilities v1.4.2
+July 2018
 
 Written by Dohn A. Arms, Argonne National Laboratory
 Send comments to dohnarms@anl.gov
@@ -7,7 +7,10 @@ Send comments to dohnarms@anl.gov
 See LICENSE file for licensing of these programs and code.
 
 The location of these utilities on the Internet is:
-http://www.aps.anl.gov/bcda/mdautils/
+http://www.xray.aps.anl.gov/~dohnarms/mdautils/
+
+There is also a github repository at:
+https://github.com/dohnarms/MDA_Utilities
 
 --------------------------------------------------------------
 
