@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2016 UChicago Argonne, LLC,
+* Copyright (c) 2018 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -10,7 +10,10 @@
   Written by Dohn A. Arms, Argonne National Laboratory
   Send comments to dohnarms@anl.gov
   
+  Change History:
+  ===========================================================================
   0.3   -- July 2005
+           Initial
   0.3.1 -- December 2005
            Removed scan divider when single file and trim options 
                used together
@@ -29,7 +32,6 @@
   1.0.2 -- November 2010
            Add -a switch  to make printing out incomplete scans an option, 
                not the default.
-  1.1   -- November 2010
   1.1.1 -- December 2010
            Forgot to comment out warning generated with incomplete scans 
                and -a. (Snuck into 1.1 package within minutes of release)
@@ -38,10 +40,9 @@
            and char to int8_t.  Changed %li to %i in printf's.  For MacOS
            Darwin, add fix to use xdr_char instead of xdr_int8_t.
   1.2.1 -- November 2011
-           Fixed bug in -f mode, where long "l" modifier was in wrong place
-           for certain cases, confusing printf.
+           Fixed bug in -f mode, where long "l" modifier was in wrong
+           place for certain cases, confusing printf.
            Simplified code a bit to reduce pointer dereferencing
-  1.2.2 -- June 2012
   1.3.0 -- February 2013
            Used printf better, removed formatting strings
            Refactored the -f code to make less weird
@@ -49,15 +50,18 @@
            Keep program from stopping while decoding after finding an 
            invalid file, a problem when processing multiple files.
   1.4.0 -- July 2016
-           New version of load library is used, with better error checking.
+           New version of load library is used, with better error
+           checking.
   1.4.1 -- August 2016
            Changed way that printer would go through mda structure,
            printing scans.  Previously used header dimensions, which can
            be wrong due to irregularity or just from scans not agreeing.
            Now only use scans themselves for subscan lengths.
-  1.4.2 -- March 2018
-           Added -b switch to comment out blank lines, which probably should
-           have been the default.
+  1.4.2 -- July 2018
+           Added -b switch to comment out blank lines, which probably
+           should have been the default.
+  ===========================================================================
+
 */
 
 /********************  mda_ascii.c  ***************/
@@ -70,7 +74,7 @@
 
 #include "mda-load.h"
 
-#define VERSION       "1.4.2 (March 2018)"
+#define VERSION       "1.4.2 (July 2018)"
 #define YEAR          "2018"
 #define VERSIONNUMBER "1.4.2"
 

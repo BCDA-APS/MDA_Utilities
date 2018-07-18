@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2016 UChicago Argonne, LLC,
+* Copyright (c) 2018 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -10,7 +10,10 @@
   Written by Dohn A. Arms, Argonne National Laboratory
   Send comments to dohnarms@anl.gov
   
+  Change History:
+  ===========================================================================
   0.1   -- July 2005
+           Initial
   0.1.1 -- December 2006
            Added support for files that have more than 32k points.
   0.2.0 -- October 2007
@@ -27,7 +30,6 @@
   1.0.2 -- August 2010
            Use offsets to load scans, as bad files sometimes have them out 
            of order.
-  1.1   -- November 2010
   1.1.1 -- February 2011
            Realloc memory in screwy xdr counted strings.
            Added <stdio.h> to remove MacOS warning. (From J. Lewis Muir)
@@ -37,7 +39,6 @@
            Renamed DBR_* type variables to EXTRA_PV_* type variables, to
            make explicit the type of integer used (which broke compatibility
            with the EPICS DBR type names).
-  1.2.1 -- January 2012
   1.2.2 -- June 2012
            Fixed major bug with INT8 Extra PVs.
   1.3.0 -- February 2013
@@ -54,6 +55,9 @@
            Added mda_test() function that does a version of mda_load to use
            for all the error checks, but doesn't allocate memory for detectors
            or positioners to keep the memory usage from being crazy.
+  1.4.2 -- July 2018
+           Fixed a couple noncritical bugs with incremental loading.
+  ===========================================================================
  */
 
 
@@ -869,8 +873,8 @@ static struct mda_scan *scan_check( XDR *xdrs, int rank,
       strcmp( scan->name, orig_scan->name) ||
       strcmp( scan->time, orig_scan->time) ||
       (scan->number_positioners != orig_scan->number_positioners) ||
-      (scan->number_detectors != scan->number_detectors) ||
-      (scan->number_triggers != scan->number_triggers) )
+      (scan->number_detectors != orig_scan->number_detectors) ||
+      (scan->number_triggers != orig_scan->number_triggers) )
     goto Scan_And_Go;
 
   // steal the scans from original scan

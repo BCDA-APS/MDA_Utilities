@@ -28,6 +28,7 @@ form.
 
 Utilities:
 -----------
+Only the first four apply to Windows.
 
 1) mda2ascii - This program converts MDA files to ASCII files, with
 various options, so the data can be read directly into a
@@ -63,56 +64,3 @@ reading mda-load.h can be helpful.  It could be built as a shared
 library, but since it is rather small and different systems utilize
 shared libraries differently, this isn't enabled.
 
-Requirements:
--------------
-
-MDA Utilities can be compiled using a C99-compatible compiler (such as
-gcc), make, and ar (if the library is to be made).  C99 compatiblity
-is needed only so far as <stdint.h>.  MDA Utilities have been
-successfully compiled on Linux and Mac OS X, while it can also be
-compiled on Solaris and Windows (I use MinGW).
-
-The only extra library requirement is access to the standard XDR
-routines.  With Linux and Mac OS X, they're part of the standard C
-library; with Solaris, they're part of the standard Networking
-Services Library (nsl). No extra packages should have to be installed
-with these systems.
-
-Windows does not come standard with XDR routines.  Either an extra
-library has be used, or an included XDR reading hack can be enabled
-(using the xdr_hack code). Either way, the Makefile has to be modified
-to make this all work.
-
-The program mdatree2ascii is a script, and needs the following
-programs (other than mda2ascii): bash, find, and sed.  These programs
-are very standard (other than on Windows), and should already be
-installed on your system.
-
-
-
-Compiling:
-----------
-
-If building from source code, except for Windows, all you need to do
-is type "make" when in the source directory, and the executables and
-library should be made.
-
-With Windows, the Makefile has to be edited.  The line in the Windows
-comment block has to be uncommented.  If using the included XDR
-support, the first two lines of the XDR block as well as the
-little-endian (LE) line have to be uncommented.  The names of the
-resulting executables need to be renamed to inlude the .exe suffix as
-well.  The GCC and AR definitions might have to be changed.
-
-
-
-Installing:
------------
-
-To install the utilities in "/usr/local", simply run "make install".
-If you want the files in a different directory, change the "prefix"
-variable in the file Makefile, then run "make install".  Otherwise,
-you can copy the files wherever you like.
-
-If you used "make install" to install the files, then you can use "make
-uninstall" to remove those files.

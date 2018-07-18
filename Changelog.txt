@@ -8,9 +8,14 @@ mda2ascii:
     blanks lines can cause problems for readers and this should have
     been the default behavior, but I don't want to break any existing
     parsers that expect these blank lines.
-Makefile:
-    Added an "uninstall" option.
-
+mda-load library:
+    Noncritical bug fixes.
+source distribution:
+    Reworked the directory structure, moving the source code into the
+    "src" directory.  The make command will now recurse into both the
+    "doc" and "src" directories.  The documentation directory will now
+    also build from source files, instead of including the PDF files.
+    Removed the Solaris support from the Makefile.
 
 From 1.4.0 to 1.4.1
 

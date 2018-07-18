@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2016 UChicago Argonne, LLC,
+* Copyright (c) 2018 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -11,10 +11,13 @@
   Written by Dohn A. Arms, Argonne National Laboratory
   Send comments to dohnarms@anl.gov
   
+  Change History:
+  ===========================================================================
   1.3.1 -- February 2014
            Initial Version
   1.4.0 -- July 2016
            Minor fixes
+  ===========================================================================
  */
 
 /* 

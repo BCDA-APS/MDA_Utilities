@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2016 UChicago Argonne, LLC,
+* Copyright (c) 2018 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -10,20 +10,20 @@
   Written by Dohn A. Arms, Argonne National Laboratory
   Send comments to dohnarms@anl.gov
   
+  Change History:
+  ===========================================================================
   0.1.0 -- May 2009
+           Initial
   1.0.0 -- October 2009
            Added Search capabilities
   1.0.1 -- November 2009
            Redid directory scanning code to not use scandir()
-  1.1   -- November 2010
-  1.1.1 -- March 2011
   1.2   -- March 2011
            Fixed integer issues by tying short to int16_t, long to int32_t,
            and char to int8_t.  Changed %li to %i in printf's.
   1.2.1 -- January 2012
            Cleaned up the overuse of pointer dereferencing, hopefully
            making it faster as well as easier to understand
-  1.2.2 -- June 2012
   1.3.0 -- February 2013
            Used printf better, removed formatting strings
   1.3.1 -- February 2014
@@ -33,6 +33,7 @@
            By default, try to load the data file completely using mda_test(),
            in order to find any data error not found by info.
            This can be turned off with new -s switch to speed it up.
+  ===========================================================================
  */
 
 
@@ -48,8 +49,8 @@
 #include "mda-load.h"
 
 
-#define VERSION "1.4.1 (August 2016)"
-#define YEAR "2016"
+#define VERSION "1.4.2 (July 2018)"
+#define YEAR "2018"
 
 // this function relies too much on the input format not changing
 void time_reformat( char *original, char *new)
