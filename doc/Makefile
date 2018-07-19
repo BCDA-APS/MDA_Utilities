@@ -36,7 +36,6 @@ mda-load.pdf : mda-load.tex
 	latex mda-load.tex
 	latex mda-load.tex
 	dvipdfm -p letter -o mda-load.pdf mda-load.dvi
-	-rm mda-load.aux mda-load.dvi mda-load.log
 
 mdatree2ascii.html : mdatree2ascii.1
 	groff -man -Thtml mdatree2ascii.1 > mdatree2ascii.html
@@ -47,5 +46,5 @@ mdatree2ascii.pdf : mdatree2ascii.1
 
 .PHONY : clean
 clean:
-	-rm *.pdf *.html
+	-rm *.pdf *.html *.dvi *.aux *.log
 

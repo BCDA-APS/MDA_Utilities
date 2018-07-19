@@ -4,7 +4,7 @@ July 2018
 Written by Dohn A. Arms, Argonne National Laboratory
 Send comments to dohnarms@anl.gov
 
-See LICENSE file for licensing of these programs and code.
+See LICENSE.txt file for licensing of these programs and code.
 
 The location of these utilities on the Internet is:
 https://epics.anl.gov/bcda/mdautils

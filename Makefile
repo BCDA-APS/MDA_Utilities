@@ -2,9 +2,10 @@
 
 prefix     = /usr/local
 bindir     = $(prefix)/bin
-mandir     = $(prefix)/man/man1
+mandir     = $(prefix)/share/man/man1
 includedir = $(prefix)/include
 libdir     = $(prefix)/lib
+docdir     = $(prefix)/share/doc/mdautils
 
 
 
@@ -37,10 +38,15 @@ endif
 #CFLAGS += -D XDR_LE
 #########################################################################
 
+.PHONY : exe doc all clean install install-all uninstall
 
-all:
+exe:
 	make -C src all
+
+doc:
 	make -C doc all
+
+all: exe doc
 
 clean:
 	make -C src clean
@@ -51,8 +57,9 @@ INSTALL_MKDIR = mkdir -p
 INSTALL_EXE   = install -c -m 0755
 INSTALL_OTHER = install -c -m 0644
 UNINSTALL_RM = -rm
+UNINSTALL_RMDIR = -rmdir
 
-install : all
+install : exe
 	$(INSTALL_MKDIR) $(DESTDIR)$(bindir)
 	$(INSTALL_MKDIR) $(DESTDIR)$(libdir)
 	$(INSTALL_MKDIR) $(DESTDIR)$(includedir)
@@ -70,6 +77,24 @@ install : all
 	$(INSTALL_OTHER) doc/mda2ascii.1 $(DESTDIR)$(mandir)/
 	$(INSTALL_OTHER) doc/mdatree2ascii.1 $(DESTDIR)$(mandir)/
 
+install-all : doc install
+	$(INSTALL_MKDIR) $(DESTDIR)$(docdir)
+	$(INSTALL_MKDIR) $(DESTDIR)$(docdir)/html
+	$(INSTALL_OTHER) LICENSE.txt $(DESTDIR)$(docdir)/
+	$(INSTALL_OTHER) README.txt $(DESTDIR)$(docdir)/
+	$(INSTALL_OTHER) Changelog.txt $(DESTDIR)$(docdir)/
+	$(INSTALL_OTHER) doc/mda-ls.pdf $(DESTDIR)$(docdir)/
+	$(INSTALL_OTHER) doc/mda-info.pdf $(DESTDIR)$(docdir)/
+	$(INSTALL_OTHER) doc/mda-dump.pdf $(DESTDIR)$(docdir)/
+	$(INSTALL_OTHER) doc/mda2ascii.pdf $(DESTDIR)$(docdir)/
+	$(INSTALL_OTHER) doc/mdatree2ascii.pdf $(DESTDIR)$(docdir)/
+	$(INSTALL_OTHER) doc/mda-load.pdf $(DESTDIR)$(docdir)/
+	$(INSTALL_OTHER) doc/mda-ls.html $(DESTDIR)$(docdir)/html/
+	$(INSTALL_OTHER) doc/mda-info.html $(DESTDIR)$(docdir)/html/
+	$(INSTALL_OTHER) doc/mda-dump.html $(DESTDIR)$(docdir)/html/
+	$(INSTALL_OTHER) doc/mda2ascii.html $(DESTDIR)$(docdir)/html/
+	$(INSTALL_OTHER) doc/mdatree2ascii.html $(DESTDIR)$(docdir)/html/
+
 uninstall :
 	$(UNINSTALL_RM) $(DESTDIR)$(bindir)/mda-ls
 	$(UNINSTALL_RM) $(DESTDIR)$(bindir)/mda-info
@@ -83,4 +108,19 @@ uninstall :
 	$(UNINSTALL_RM) $(DESTDIR)$(mandir)/mda-dump.1
 	$(UNINSTALL_RM) $(DESTDIR)$(mandir)/mda2ascii.1
 	$(UNINSTALL_RM) $(DESTDIR)$(mandir)/mdatree2ascii.1
-
+	$(UNINSTALL_RM) $(DESTDIR)$(docdir)/LICENSE.txt
+	$(UNINSTALL_RM) $(DESTDIR)$(docdir)/README.txt
+	$(UNINSTALL_RM) $(DESTDIR)$(docdir)/Changelog.txt
+	$(UNINSTALL_RM) $(DESTDIR)$(docdir)/mda-ls.pdf
+	$(UNINSTALL_RM) $(DESTDIR)$(docdir)/mda-info.pdf
+	$(UNINSTALL_RM) $(DESTDIR)$(docdir)/mda-dump.pdf
+	$(UNINSTALL_RM) $(DESTDIR)$(docdir)/mda2ascii.pdf
+	$(UNINSTALL_RM) $(DESTDIR)$(docdir)/mdatree2ascii.pdf
+	$(UNINSTALL_RM) $(DESTDIR)$(docdir)/mda-load.pdf
+	$(UNINSTALL_RM) $(DESTDIR)$(docdir)/html/mda-ls.html
+	$(UNINSTALL_RM) $(DESTDIR)$(docdir)/html/mda-info.html
+	$(UNINSTALL_RM) $(DESTDIR)$(docdir)/html/mda-dump.html
+	$(UNINSTALL_RM) $(DESTDIR)$(docdir)/html/mda2ascii.html
+	$(UNINSTALL_RM) $(DESTDIR)$(docdir)/html/mdatree2ascii.html
+	$(UNINSTALL_RMDIR) $(DESTDIR)$(docdir)/html
+	$(UNINSTALL_RMDIR) $(DESTDIR)$(docdir)

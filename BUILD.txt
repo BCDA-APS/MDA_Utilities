@@ -27,9 +27,15 @@ installed on your system.
 Compiling:
 ----------
 
-If building from source code, except for Windows, all you need to do
-is type "make" when in the source directory, and the executables and
-library should be made.
+When building from source code, all you need to do is type
+>> make
+when in the source directory, and the executables and library should
+be made.  The PDF and HTML documentation is not created by default, as
+this process needs "groff" and "ps2pdf" to exist on the system.
+Assuming these programs exist, the conversions can also be made by
+running
+>> make all
+instead.
 
 With Windows, the Makefile has to be edited.  The line in the Windows
 comment block has to be uncommented.  If using the included XDR
@@ -40,13 +46,23 @@ well.  The GCC and AR definitions might have to be changed.
 
 
 
+
 Installing:
 -----------
 
-To install the utilities in "/usr/local", simply run "make install".
-If you want the files in a different directory, change the "prefix"
-variable in the file Makefile, then run "make install".  Otherwise,
-you can copy the files wherever you like.
+To install the utilities in "/usr/local", you can simply run
+>> make install
+from the top level directory.  If you want the files in a different
+directory, change the "prefix" variable in the file "Makefile" before
+doing so.
 
-If you used "make install" to install the files, then you can use "make
-uninstall" to remove those files.
+If you are able to build the PDF and HTML documentation (as described
+above), you can install those as well by running
+>> make install-all
+instead.
+
+If you used "make" to install the files, then you can run
+>> make uninstall
+to remove those files.  It will attempt to remove the PDF and HTML
+files even if they weren't installed.
+
