@@ -63,6 +63,7 @@ install : exe
 	$(INSTALL_MKDIR) $(DESTDIR)$(bindir)
 	$(INSTALL_MKDIR) $(DESTDIR)$(libdir)
 	$(INSTALL_MKDIR) $(DESTDIR)$(includedir)
+	$(INSTALL_MKDIR) $(DESTDIR)$(docdir)
 	$(INSTALL_MKDIR) $(DESTDIR)$(mandir)
 	$(INSTALL_EXE) src/mda-ls $(DESTDIR)$(bindir)/
 	$(INSTALL_EXE) src/mda-info $(DESTDIR)$(bindir)/
@@ -71,6 +72,9 @@ install : exe
 	$(INSTALL_EXE) src/mdatree2ascii $(DESTDIR)$(bindir)/
 	$(INSTALL_OTHER) src/libmda-load.a $(DESTDIR)$(libdir)/
 	$(INSTALL_OTHER) src/mda-load.h $(DESTDIR)$(includedir)/
+	$(INSTALL_OTHER) LICENSE.txt $(DESTDIR)$(docdir)/
+	$(INSTALL_OTHER) README.txt $(DESTDIR)$(docdir)/
+	$(INSTALL_OTHER) Changelog.txt $(DESTDIR)$(docdir)/
 	$(INSTALL_OTHER) doc/mda-ls.1 $(DESTDIR)$(mandir)/
 	$(INSTALL_OTHER) doc/mda-info.1 $(DESTDIR)$(mandir)/
 	$(INSTALL_OTHER) doc/mda-dump.1 $(DESTDIR)$(mandir)/
@@ -78,11 +82,7 @@ install : exe
 	$(INSTALL_OTHER) doc/mdatree2ascii.1 $(DESTDIR)$(mandir)/
 
 install-all : doc install
-	$(INSTALL_MKDIR) $(DESTDIR)$(docdir)
 	$(INSTALL_MKDIR) $(DESTDIR)$(docdir)/html
-	$(INSTALL_OTHER) LICENSE.txt $(DESTDIR)$(docdir)/
-	$(INSTALL_OTHER) README.txt $(DESTDIR)$(docdir)/
-	$(INSTALL_OTHER) Changelog.txt $(DESTDIR)$(docdir)/
 	$(INSTALL_OTHER) doc/mda-ls.pdf $(DESTDIR)$(docdir)/
 	$(INSTALL_OTHER) doc/mda-info.pdf $(DESTDIR)$(docdir)/
 	$(INSTALL_OTHER) doc/mda-dump.pdf $(DESTDIR)$(docdir)/
