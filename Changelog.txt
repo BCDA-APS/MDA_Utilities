@@ -1,5 +1,9 @@
 MDA Utilities Version Changelog
 
+From 1.4.2 to 1.4.3
+
+documentation:
+    Changed listed location of github repository to match new home.
 
 From 1.4.1 to 1.4.2
 
