@@ -4,6 +4,9 @@ From 1.4.2 to 1.4.3
 
 documentation:
     Changed listed location of github repository to match new home.
+Makefiles:
+    Add changes to allow RHEL8 to build cleanly, as its glibc broke
+    the XDR library functions out into a separate library.
 
 From 1.4.1 to 1.4.2
 

@@ -7,16 +7,16 @@ libmda-load.a: mda-load.h mda_loader.o $(MORE_OBJS)
 	$(AR) rcs libmda-load.a mda_loader.o $(MORE_OBJS)
 
 mda2ascii: mda_ascii.o libmda-load.a mda-load.h
-	$(CC) mda_ascii.o libmda-load.a -o mda2ascii
+	$(CC) mda_ascii.o libmda-load.a -o mda2ascii $(EXTRALIBS)
 
 mda-dump: mda_dump.o $(MORE_OBJS)
-	$(CC) mda_dump.o -o mda-dump $(MORE_OBJS)
+	$(CC) mda_dump.o -o mda-dump $(MORE_OBJS) $(EXTRALIBS)
 
 mda-info: mda_info.o libmda-load.a mda-load.h
-	$(CC) mda_info.o libmda-load.a -o mda-info
+	$(CC) mda_info.o libmda-load.a -o mda-info $(EXTRALIBS)
 
 mda-ls: mda_ls.o libmda-load.a mda-load.h
-	$(CC) mda_ls.o libmda-load.a -o mda-ls
+	$(CC) mda_ls.o libmda-load.a -o mda-ls $(EXTRALIBS)
 
 
 mda_dump.o:

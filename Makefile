@@ -12,6 +12,7 @@ docdir     = $(prefix)/share/doc/mdautils
 export CC = gcc
 export AR = ar
 export CFLAGS = -Wall -O2
+export EXTRALIBS =
 
 # for debugging
 #CFLAGS += -g
@@ -20,6 +21,18 @@ OSTYPE := $(shell uname -s)
 ifeq ($(OSTYPE),Darwin)
   CFLAGS += -D DARWIN
 endif
+ifeq ($(OSTYPE),Linux)
+  DIST := $(shell lsb_release -i -s)
+  RELEASE := $(shell lsb_release -c -s)
+  ifeq ($(DIST),RedHatEnterprise)
+    ifeq ($(RELEASE),Ootpa)
+      CFLAGS += -I/usr/include/tirpc
+      EXTRALIBS += -ltirpc
+    endif
+  endif 
+endif
+
+
 
 ####  Windows  ################################################
 # For Windows cross-compiling, you need to uncomment XDR LE support
