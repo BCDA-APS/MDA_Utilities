@@ -11,11 +11,17 @@ is needed only so far as <stdint.h>.  MDA Utilities have been
 successfully compiled on Linux and Mac OS X, while it can also be
 compiled on Windows (I use MinGW).
 
-Only the standard C library is needed, assuming it included XDR
-routines, which most do.  However, Windows does not come standard with
-XDR routines.  Either an extra library has be used, or an included XDR
-reading hack can be enabled (using the xdr_hack code). Either way, the
-Makefile has to be modified to make this all work.
+Only the standard C library is needed, assuming it includes XDR
+routines, which most do.  This may change in the future, as Red Hat
+Enterprise Linux 8 came with XDR routines not in libc, requiring the
+additional library tirpc.  The build process recognizes RHEL8 and
+includes tirpc, but more exceptions like this will probably be needed
+in the future.
+
+Windows also does not come standard with XDR routines.  Either an
+extra library has be used, or an included XDR reading hack can be
+enabled (using the xdr_hack code). Either way, the Makefile has to be
+explictly modified to make either work.
 
 The program mdatree2ascii is a script, and needs the following
 programs (other than mda2ascii): bash, find, and sed.  These programs

@@ -5,8 +5,9 @@ From 1.4.2 to 1.4.3
 documentation:
     Changed listed location of github repository to match new home.
 Makefiles:
-    Add changes to allow RHEL8 to build cleanly, as its glibc broke
-    the XDR library functions out into a separate library.
+    Add changes to allow RHEL8 to build cleanly.  RHEL8 removed the
+    XDR routines from glibc, which can be found in a separate library,
+    tirpc.
 
 From 1.4.1 to 1.4.2
 
