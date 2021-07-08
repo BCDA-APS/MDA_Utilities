@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2018 UChicago Argonne, LLC,
+* Copyright (c) 2021 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -8,7 +8,6 @@
 
 /*
   Written by Dohn A. Arms, Argonne National Laboratory
-  Send comments to dohnarms@anl.gov
   
   0.1   -- July 2005
   0.1.1 -- December 2006

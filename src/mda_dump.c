@@ -1,5 +1,5 @@
 /*************************************************************************\
-* Copyright (c) 2018 UChicago Argonne, LLC,
+* Copyright (c) 2021 UChicago Argonne, LLC,
 *               as Operator of Argonne National Laboratory.
 * This file is distributed subject to a Software License Agreement
 * found in file LICENSE that is included with this distribution. 
@@ -8,7 +8,6 @@
 
 /*
   Written by Dohn A. Arms, Argonne National Laboratory
-  Send comments to dohnarms@anl.gov
   
   Change History:
   ===========================================================================
@@ -46,9 +45,9 @@
 
 #include <unistd.h>
 
-#define VERSION       "1.4.2 (July 2018)"
-#define YEAR          "2018"
-#define VERSIONNUMBER "1.4.2"
+#define VERSION       "1.4.3 (July 2021)"
+#define YEAR          "2021"
+#define VERSIONNUMBER "1.4.3"
 
 
 #ifdef XDR_HACK
@@ -589,10 +588,7 @@ void version(void)
   printf("mda-dump %s\n"
          "\n"
          "Copyright (c) %s UChicago Argonne, LLC,\n"
-         "as Operator of Argonne National Laboratory.\n"
-         "\n"
-         "Written by Dohn Arms, dohnarms@anl.gov.\n",
-         VERSION, YEAR);
+         "as Operator of Argonne National Laboratory.\n", VERSION, YEAR);
 }
 
 

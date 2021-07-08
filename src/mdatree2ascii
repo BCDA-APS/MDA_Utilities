@@ -2,13 +2,12 @@
 
 # mdatree2ascii   
 
-# Copyright (c) 2018 UChicago Argonne, LLC,
+# Copyright (c) 2021 UChicago Argonne, LLC,
 #     as Operator of Argonne National Laboratory.
 # This file is distributed subject to a Software License Agreement
 # found in file LICENSE that is included with this distribution. 
 
 #  Written by Dohn A. Arms, Argonne National Laboratory
-#  Send comments to dohnarms@anl.gov
 
 # Change History:
 # ===========================================================================
@@ -35,12 +34,10 @@ while [ 1 ]; do
 done
 
 if (( VERSION == 1 )) ; then
-    echo "mdatree2ascii 1.4.2 (July 2018)";
+    echo "mdatree2ascii 1.4.3 (July 2021)";
     echo "";
-    echo "Copyright (c) 2018 UChicago Argonne, LLC,";
+    echo "Copyright (c) 2021 UChicago Argonne, LLC,";
     echo "as Operator of Argonne National Laboratory.";
-    echo "";
-    echo "Written by Dohn Arms, dohnarms@anl.gov.";
     exit 0
 fi
 
